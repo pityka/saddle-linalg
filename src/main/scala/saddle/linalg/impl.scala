@@ -214,6 +214,29 @@ trait OpImpl {
       }
     }
 
+  implicit def mult2self =
+    new MatUnaryOp[AtxA, Mat[Double]] {
+      def apply(a: Mat[Double]): Mat[Double] = {
+
+        val result = Array.ofDim[Double](a.numCols * a.numCols)
+
+        BLAS.dgemm("N", // op a
+                   "T", // op b
+                   a.numCols, // M rows of op(a)
+                   a.numCols, // N cols of op(b)
+                   a.numRows, // K cols of op(a)
+                   1.0, // alpha
+                   a.contents, // op(a) data
+                   a.numCols, // lda
+                   a.contents, // op(b) data
+                   a.numCols, //ldb
+                   0.0, // c
+                   result, // c data
+                   a.numCols) // ldc
+        new mat.MatDouble(a.numCols, a.numCols, result)
+      }
+    }
+
   implicit def mult3 =
     new MatBinOp[AxBt, Mat[Double]] {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
@@ -236,6 +259,29 @@ trait OpImpl {
                    result, // c data
                    b.numRows) // ldc
         new mat.MatDouble(a.numRows, b.numRows, result)
+      }
+    }
+
+  implicit def mult3self =
+    new MatUnaryOp[AxAt, Mat[Double]] {
+      def apply(a: Mat[Double]): Mat[Double] = {
+
+        val result = Array.ofDim[Double](a.numRows * a.numRows)
+
+        BLAS.dgemm("T",
+                   "N",
+                   a.numRows, // M
+                   a.numRows, // N
+                   a.numCols, // K
+                   1.0, // alpha
+                   a.contents, // op(a) data
+                   a.numCols, // lda
+                   a.contents, // op(b) data
+                   a.numCols, //ldb
+                   0.0, // c
+                   result, // c data
+                   a.numRows) // ldc
+        new mat.MatDouble(a.numRows, a.numRows, result)
       }
     }
 
@@ -322,4 +368,5 @@ trait OpImpl {
         new mat.MatDouble(a.numCols, b.numRows, result)
       }
     }
+
 }

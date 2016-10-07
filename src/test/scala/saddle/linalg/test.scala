@@ -80,6 +80,29 @@ class MMTCSuite extends FunSuite {
   }
 }
 
+class InnerSuite extends FunSuite {
+  test("1x2") {
+    val m1 = Mat(Vec(1d, 2d))
+
+    assert((m1.innerM) == Mat(Vec(5d)))
+  }
+
+  test("2x2") {
+    val m1 = Mat(Vec(1d, 2d), Vec(3d, 4d))
+
+    assert((m1.innerM) == Mat(Vec(5d, 11d), Vec(11d, 25d)))
+  }
+}
+
+class OuterSuite extends FunSuite {
+  test("1x2") {
+    val m1 = Mat(Vec(1d, 2d)).outerM
+
+    assert(m1 == Mat(Vec(1d, 2d), Vec(2d, 4d)))
+  }
+
+}
+
 class MMTSuite extends FunSuite {
   test("1x2") {
     val m1 = Mat(Vec(1d, 2d))

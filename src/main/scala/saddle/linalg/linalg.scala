@@ -21,6 +21,11 @@ trait MatGemmOp[O, Res] {
 }
 
 @implicitNotFound(msg = "${O} not found")
+trait MatGemmSelfOp[O, Res] {
+  def apply(a: Mat[Double], c: Mat[Double], alpha: Double, beta: Double): Res
+}
+
+@implicitNotFound(msg = "${O} not found")
 trait MatUnaryOp[O, Res] {
   def apply(a: Mat[Double]): Res
 }
@@ -76,5 +81,9 @@ trait LinalgOps {
   def tmmtc(other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
       implicit op: MatGemmOp[aAtxBtpbC, B]): B =
     op(self, other, c, alpha, beta)
+
+  def innerM(implicit op: MatUnaryOp[AtxA, Mat[Double]]): B = op(self)
+
+  def outerM(implicit op: MatUnaryOp[AxAt, Mat[Double]]): B = op(self)
 
 }
