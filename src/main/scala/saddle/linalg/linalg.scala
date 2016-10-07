@@ -20,52 +20,61 @@ trait MatGemmOp[O, Res] {
             beta: Double): Res
 }
 
+@implicitNotFound(msg = "${O} not found")
+trait MatUnaryOp[O, Res] {
+  def apply(a: Mat[Double]): Res
+}
+
 trait LinalgOps {
   val self: Mat[Double]
   type B = Mat[Double]
 
   def linalg = this
 
+  def invert(implicit op: MatUnaryOp[InvertWithLU, B]): B = op(self)
+
+  def invertPD(implicit op: MatUnaryOp[InvertPDCholesky, B]): B = op(self)
+
   /**
     * Simple DGEMM
     */
   /* A x B */
-  def mm[Res](other: B)(implicit op: MatBinOp[AxB, Res]): Res =
+  def mm(other: B)(implicit op: MatBinOp[AxB, B]): B =
     op(self, other)
 
   /* t(A) x B */
-  def tmm[Res](other: B)(implicit op: MatBinOp[AtxB, Res]): Res =
+  def tmm(other: B)(implicit op: MatBinOp[AtxB, B]): B =
     op(self, other)
 
   /* A x t(B) */
-  def mmt[Res](other: B)(implicit op: MatBinOp[AxBt, Res]): Res =
+  def mmt(other: B)(implicit op: MatBinOp[AxBt, B]): B =
     op(self, other)
 
   /* t(A) x t(B) */
-  def tmmt[Res](other: B)(implicit op: MatBinOp[AtxBt, Res]): Res =
+  def tmmt(other: B)(implicit op: MatBinOp[AtxBt, B]): B =
     op(self, other)
 
   /**
     * Full DGEMM
     */
   /* alhpa A x B + beta * C */
-  def mmc[Res](other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
-      implicit op: MatGemmOp[aAxBpbC, Res]): Res =
+  def mmc(other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
+      implicit op: MatGemmOp[aAxBpbC, B]): B =
     op(self, other, c, alpha, beta)
 
   /* alhpa t(A) x B + beta * C */
-  def tmmc[Res](other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
-      implicit op: MatGemmOp[aAtxBpbC, Res]): Res =
+  def tmmc(other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
+      implicit op: MatGemmOp[aAtxBpbC, B]): B =
     op(self, other, c, alpha, beta)
 
   /* alhpa A x t(B) + beta * C */
-  def mmtc[Res](other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
-      implicit op: MatGemmOp[aAxBtpbC, Res]): Res =
+  def mmtc(other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
+      implicit op: MatGemmOp[aAxBtpbC, B]): B =
     op(self, other, c, alpha, beta)
 
   /* alhpa t(A) x t(B) + beta * C */
-  def tmmtc[Res](other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
-      implicit op: MatGemmOp[aAtxBtpbC, Res]): Res =
+  def tmmtc(other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
+      implicit op: MatGemmOp[aAtxBtpbC, B]): B =
     op(self, other, c, alpha, beta)
 
 }

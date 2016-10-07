@@ -2,11 +2,107 @@ package org.saddle.linalg
 
 import org.saddle._
 
+case class DPotrfException(i: Int)
+    extends java.lang.Exception(s"""|dpotrf error, info=$i
+              |*  INFO    (output) INTEGER
+|*          = 0:  successful exit
+|*          < 0:  if INFO = -i, the i-th argument had an illegal value
+|*          > 0:  if INFO = i, the leading minor of order i is not
+|*                positive definite, and the factorization could not be
+|*                completed.""".stripMargin)
+
 trait OpImpl {
 
   lazy val BLAS = com.github.fommil.netlib.BLAS.getInstance
 
   lazy val LAPACK = com.github.fommil.netlib.LAPACK.getInstance
+
+  implicit def invertGeneralLU = new MatUnaryOp[InvertWithLU, Mat[Double]] {
+    def apply(m: Mat[Double]): Mat[Double] = {
+
+      val marray = m.contents
+      val array = marray.clone
+
+      val ipiv = Array.ofDim[Int](math.max(1, math.min(m.numCols, m.numRows)))
+
+      LAPACK.dgetrf(m.numCols,
+                    m.numRows,
+                    array,
+                    m.numCols,
+                    ipiv,
+                    new org.netlib.util.intW(0))
+
+      val lworkQuery = Array.ofDim[Double](1)
+
+      LAPACK.dgetri(m.numCols,
+                    array,
+                    m.numCols,
+                    ipiv,
+                    lworkQuery,
+                    -1,
+                    new org.netlib.util.intW(0))
+
+      val work = Array.ofDim[Double](lworkQuery(0).toInt + 1)
+      LAPACK.dgetri(m.numCols,
+                    array,
+                    m.numCols,
+                    ipiv,
+                    work,
+                    lworkQuery(0).toInt + 1,
+                    new org.netlib.util.intW(0))
+
+      new mat.MatDouble(m.numCols, m.numCols, array)
+
+    }
+  }
+
+  private val lapackInfoMethod =
+    java.lang.Class.forName("org.netlib.util.intW").getField("val")
+
+  implicit def invertPD = new MatUnaryOp[InvertPDCholesky, Mat[Double]] {
+    def apply(m: Mat[Double]): Mat[Double] = {
+
+      val marray = m.contents
+      val array = marray.clone
+      val info = new org.netlib.util.intW(0)
+      val info2 = new org.netlib.util.intW(0)
+
+      LAPACK.dpotrf("L", m.numCols, array, m.numCols, info)
+      LAPACK.dpotri("L", m.numCols, array, m.numCols, info2)
+
+      if (lapackInfoMethod.get(info) == 0 && lapackInfoMethod
+            .get(info2) == 0) {
+
+        var i = 0
+        var j = 0
+        while (i < m.numCols) {
+          while (j < i) {
+            array(i * m.numCols + j) = array(j * m.numCols + i)
+            j += 1
+          }
+          j = 0
+          i += 1
+        }
+
+        new mat.MatDouble(m.numCols, m.numCols, array)
+
+      } else if (lapackInfoMethod.get(info) != 0) {
+        throw DPotrfException(lapackInfoMethod.get(info).asInstanceOf[Int])
+      } else {
+        throw new RuntimeException(
+          "ERROR in dpotri info=" + lapackInfoMethod
+            .get(info2) + """
+                      |lapack says:
+                      |      INFO    (output) INTEGER
+                    |= 0:  successful exit
+                    |< 0:  if INFO = -i, the i-th argument had an illegal
+                    |value
+                    |> 0:  if INFO = i, the (i,i) element of the factor U
+                    |or L is zero, and the inverse could not be computed.""".stripMargin + ", matrix: " + m.toString)
+      }
+
+    }
+  }
 
   implicit def mult1 =
     new MatBinOp[AxB, Mat[Double]] {

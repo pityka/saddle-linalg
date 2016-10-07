@@ -139,3 +139,24 @@ class TMMTSuite extends FunSuite {
     assert(r == Mat(Vec(5d, 11d, 17d), Vec(11d, 25d, 39d), Vec(17d, 39d, 61d)))
   }
 }
+
+class InvertGeneralSuite extends FunSuite {
+  test("2x2") {
+    val m1 = Mat(Vec(1d, 2d), Vec(3d, 4d)).invert.roundTo(10)
+
+    assert(m1 == Mat(Vec(-2d, 1d), Vec(1.5d, -0.5d)))
+  }
+
+}
+
+class InvertPDSuite extends FunSuite {
+  test("2x2") {
+    val m1 = Mat(Vec(1d, 2d), Vec(3d, 4d))
+      .mmt(Mat(Vec(1d, 2d), Vec(3d, 4d)))
+      .invertPD
+      .roundTo(10)
+
+    assert(m1 == Mat(Vec(5d, -3.5), Vec(-3.5, 2.5d)))
+  }
+
+}
