@@ -237,6 +237,33 @@ trait OpImpl {
       }
     }
 
+  implicit def mult2cself =
+    new MatGemmSelfOp[aAtxApbC, Mat[Double]] {
+      def apply(a: Mat[Double],
+                c: Mat[Double],
+                alpha: Double,
+                beta: Double): Mat[Double] = {
+        assert(c.numRows == a.numCols && c.numCols == a.numCols)
+
+        val result = c.contents.clone
+
+        BLAS.dgemm("N", // op a
+                   "T", // op b
+                   a.numCols, // M rows of op(a)
+                   a.numCols, // N cols of op(b)
+                   a.numRows, // K cols of op(a)
+                   alpha, // alpha
+                   a.contents, // op(a) data
+                   a.numCols, // lda
+                   a.contents, // op(b) data
+                   a.numCols, //ldb
+                   beta, // c
+                   result, // c data
+                   a.numCols) // ldc
+        new mat.MatDouble(a.numCols, a.numCols, result)
+      }
+    }
+
   implicit def mult3 =
     new MatBinOp[AxBt, Mat[Double]] {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
@@ -312,6 +339,33 @@ trait OpImpl {
                    result, // c data
                    b.numRows) // ldc
         new mat.MatDouble(a.numRows, b.numRows, result)
+      }
+    }
+
+  implicit def mult3selfplus =
+    new MatGemmSelfOp[aAxAtpbC, Mat[Double]] {
+      def apply(a: Mat[Double],
+                c: Mat[Double],
+                alpha: Double,
+                beta: Double): Mat[Double] = {
+        assert(c.numRows == a.numRows && c.numCols == a.numRows)
+
+        val result = c.contents.clone
+
+        BLAS.dgemm("T",
+                   "N",
+                   a.numRows, // M
+                   a.numRows, // N
+                   a.numCols, // K
+                   alpha, // alpha
+                   a.contents, // op(a) data
+                   a.numCols, // lda
+                   a.contents, // op(b) data
+                   a.numCols, //ldb
+                   beta, // c
+                   result, // c data
+                   a.numRows) // ldc
+        new mat.MatDouble(a.numRows, a.numRows, result)
       }
     }
 

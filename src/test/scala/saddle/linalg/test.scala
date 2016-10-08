@@ -94,11 +94,29 @@ class InnerSuite extends FunSuite {
   }
 }
 
+class InnerSuitePlus extends FunSuite {
+
+  test("2x2") {
+    val m1 = Mat(Vec(1d, 2d), Vec(3d, 4d)).innerMpC(1.0, 1.0, mat.ones(2, 2))
+
+    assert((m1) == Mat(Vec(6d, 12d), Vec(12d, 26d)))
+  }
+}
+
 class OuterSuite extends FunSuite {
   test("1x2") {
     val m1 = Mat(Vec(1d, 2d)).outerM
 
     assert(m1 == Mat(Vec(1d, 2d), Vec(2d, 4d)))
+  }
+
+}
+
+class OuterSuitePlus extends FunSuite {
+  test("1x2") {
+    val m1 = Mat(Vec(1d, 2d)).outerMpC(1.0, 1.0, Mat(Vec(1d, 1d), Vec(1d, 1d)))
+
+    assert(m1 == Mat(Vec(2d, 3d), Vec(3d, 5d)))
   }
 
 }

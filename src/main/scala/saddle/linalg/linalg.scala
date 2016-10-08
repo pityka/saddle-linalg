@@ -84,6 +84,14 @@ trait LinalgOps {
 
   def innerM(implicit op: MatUnaryOp[AtxA, Mat[Double]]): B = op(self)
 
+  def innerMpC(alpha: Double, beta: Double, c: Mat[Double])(
+      implicit op: MatGemmSelfOp[aAtxApbC, Mat[Double]]): B =
+    op(self, c, alpha, beta)
+
   def outerM(implicit op: MatUnaryOp[AxAt, Mat[Double]]): B = op(self)
+
+  def outerMpC(alpha: Double, beta: Double, c: Mat[Double])(
+      implicit op: MatGemmSelfOp[aAxAtpbC, Mat[Double]]): B =
+    op(self, c, alpha, beta)
 
 }
