@@ -201,3 +201,19 @@ class InvertPDSuite extends FunSuite {
   }
 
 }
+
+class SVD extends FunSuite {
+
+  test("3x2") {
+    val m = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d))
+    val m1 = m.svd
+    val sigma = Mat(mat.diag(m1.sigma).T.cols :+ Vec(0d, 0d): _*)
+    val back = (m1.u mm sigma mm m1.vt)
+
+    assert(back.roundTo(10) == m)
+    assert(
+      m1.u.roundTo(7) == Mat(Vec(-0.6196295, -0.7848945),
+                             Vec(-0.7848945, 0.6196295)))
+    
+  }
+}

@@ -94,4 +94,6 @@ trait LinalgOps {
       implicit op: MatGemmSelfOp[aAxAtpbC, Mat[Double]]): B =
     op(self, c, alpha, beta)
 
+  def svd(implicit op: MatUnaryOp[GeneralSVD, SVDResult]): SVDResult = op(self)
+
 }

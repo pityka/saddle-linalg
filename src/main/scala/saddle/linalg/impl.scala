@@ -11,11 +11,80 @@ case class DPotrfException(i: Int)
 |*                positive definite, and the factorization could not be
 |*                completed.""".stripMargin)
 
+case class SVDResult(u: Mat[Double], sigma: Vec[Double], vt: Mat[Double])
+
 trait OpImpl {
 
   lazy val BLAS = com.github.fommil.netlib.BLAS.getInstance
 
   lazy val LAPACK = com.github.fommil.netlib.LAPACK.getInstance
+
+  implicit def svd = new MatUnaryOp[GeneralSVD, SVDResult] {
+    def apply(m: Mat[Double]): SVDResult = {
+
+      /** Lapack gives us the SVD of the transpose
+        * t(a) = v t(s) t(u)
+        *   a  = u s t(v)
+        */
+      val cop = m.contents.clone
+      val s = Array.ofDim[Double](math.min(m.numRows, m.numCols))
+      val u = Array.ofDim[Double](m.numCols * m.numCols)
+      val vt = Array.ofDim[Double](m.numRows * m.numRows)
+      val lworkQuery = Array.ofDim[Double](1)
+      val info = new org.netlib.util.intW(0)
+
+      // 1. Workspace query
+      LAPACK.dgesvd(
+        "A", // JOBU,
+        "A", // JOBVT,
+        m.numCols, // M,
+        m.numRows, // N,
+        cop, // A,
+        m.numCols, // LDA,
+        s, // S,
+        u, // U,
+        m.numCols, // LDU,
+        vt, // VT,
+        m.numRows, // LDVT,
+        lworkQuery, // WORK,
+        -1, // LWORK,
+        info // INFO
+      )
+
+      val lwork = lworkQuery(0).toInt
+      val work = Array.ofDim[Double](lwork)
+
+      LAPACK.dgesvd(
+        "A", // JOBU,
+        "A", // JOBVT,
+        m.numCols, // M,
+        m.numRows, // N,
+        cop, // A,
+        m.numCols, // LDA,
+        s, // S,
+        u, // U,
+        m.numCols, // LDU,
+        vt, // VT,
+        m.numRows, // LDVT,
+        work, // WORK,
+        lwork, // LWORK,
+        info // INFO
+      )
+
+      if (lapackInfoMethod.get(info) == 0) {
+        val ut: Mat[Double] = new mat.MatDouble(m.numRows, m.numRows, vt)
+        val v: Mat[Double] = new mat.MatDouble(m.numCols, m.numCols, u)
+        val sigma: Vec[Double] = Vec(s: _*)
+
+        SVDResult(
+          u = ut,
+          sigma = sigma,
+          vt = v
+        )
+      } else throw new RuntimeException("SVD Failed")
+
+    }
+  }
 
   implicit def invertGeneralLU = new MatUnaryOp[InvertWithLU, Mat[Double]] {
     def apply(m: Mat[Double]): Mat[Double] = {
