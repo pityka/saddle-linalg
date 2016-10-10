@@ -96,4 +96,6 @@ trait LinalgOps {
 
   def svd(implicit op: MatUnaryOp[GeneralSVD, SVDResult]): SVDResult = op(self)
 
+  def trace(implicit op: MatUnaryOp[Trace, Double]): Double = op(self)
+
 }

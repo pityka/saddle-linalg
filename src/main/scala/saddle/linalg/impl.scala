@@ -492,4 +492,19 @@ trait OpImpl {
       }
     }
 
+  implicit def trace =
+    new MatUnaryOp[Trace, Double] {
+      def apply(a: Mat[Double]): Double = {
+        assert(a.numRows == a.numCols, "Trace of rectangular matrix")
+        var s = 0.0
+        var i = 0
+        val d = a.contents
+        while (i < a.numRows) {
+          s += d(i * a.numRows + i)
+          i += 1
+        }
+        s
+      }
+    }
+
 }

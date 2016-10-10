@@ -20,6 +20,8 @@ trait InvertPDCholesky
 
 trait GeneralSVD
 
+trait Trace
+
 // from lapack:
 // inverse of A'A from A (QR) (http://scicomp.stackexchange.com/questions/3188/dealing-with-the-inverse-of-a-positive-definite-symmetric-covariance-matrix)
 // eigen (symmetric + nonsymmetric)

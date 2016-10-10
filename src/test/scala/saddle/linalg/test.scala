@@ -214,6 +214,15 @@ class SVD extends FunSuite {
     assert(
       m1.u.roundTo(7) == Mat(Vec(-0.6196295, -0.7848945),
                              Vec(-0.7848945, 0.6196295)))
-    
+
   }
+}
+
+class TraceSuite extends FunSuite {
+  test("1x2") {
+    val m1 = Mat(Vec(1d, 2d), Vec(3d, 4d))
+
+    assert((m1.trace) == 5d)
+  }
+
 }
