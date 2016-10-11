@@ -507,4 +507,28 @@ trait OpImpl {
       }
     }
 
+  implicit def diag =
+    new MatUnaryOp[Diag, Vec[Double]] {
+      def apply(a: Mat[Double]): Vec[Double] = {
+        val b = Array.ofDim[Double](math.min(a.numRows, a.numCols))
+        var i = 0
+        val d = a.contents
+        while (i < b.size) {
+          b(i) = d(i * a.numRows + i)
+          i += 1
+        }
+        b
+      }
+    }
+
+  implicit def ispd = new MatUnaryOp[TestPD, Boolean] {
+    def apply(m: Mat[Double]): Boolean = {
+
+      val marray = m.contents
+      val array = marray.clone
+      val info = new org.netlib.util.intW(0)
+      LAPACK.dpotrf("L", m.numCols, array, m.numCols, info)
+      lapackInfoMethod.get(info) == 0
+    }
+  }
 }

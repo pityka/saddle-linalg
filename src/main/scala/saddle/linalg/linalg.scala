@@ -98,4 +98,9 @@ trait LinalgOps {
 
   def trace(implicit op: MatUnaryOp[Trace, Double]): Double = op(self)
 
+  def diag(implicit op: MatUnaryOp[Diag, Vec[Double]]): Vec[Double] = op(self)
+
+  def isPositiveDefinite(implicit op: MatUnaryOp[TestPD, Boolean]): Boolean =
+    op(self)
+
 }
