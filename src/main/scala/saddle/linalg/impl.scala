@@ -12,11 +12,107 @@ class DPotrfException(i: Int) extends Exception(s"""|dpotrf error, info=$i
 
 case class SVDResult(u: Mat[Double], sigma: Vec[Double], vt: Mat[Double])
 
+case class EigenDecompositionNonSymmetric(q: Mat[Double],
+                                          lambdaReal: Vec[Double],
+                                          lambdaImag: Vec[Double])
+
+case class EigenDecompositionSymmetric(q: Mat[Double], lambdaReal: Vec[Double])
+
 trait OpImpl {
 
   lazy val BLAS = com.github.fommil.netlib.BLAS.getInstance
 
   lazy val LAPACK = com.github.fommil.netlib.LAPACK.getInstance
+
+  implicit def symmEigen =
+    new MatUnaryOp[EigS, EigenDecompositionSymmetric] {
+      def apply(m: Mat[Double]): EigenDecompositionSymmetric = {
+        assert(m.numRows == m.numCols)
+        val a = m.contents.clone
+
+        val vl = Array.ofDim[Double](m.numRows * m.numRows)
+        val wr = Array.ofDim[Double](m.numRows)
+
+        val workQuery = Array.ofDim[Double](1)
+        val info = new org.netlib.util.intW(0)
+
+        LAPACK
+          .dsyev("V", "U", m.numRows, a, m.numRows, wr, workQuery, -1, info)
+
+        val work = Array.ofDim[Double](workQuery(0).toInt)
+
+        LAPACK
+          .dsyev("V", "U", m.numRows, a, m.numRows, wr, work, work.size, info)
+
+        val success = lapackInfoMethod.get(info) == 0
+
+        if (!success) throw new RuntimeException("Eigen decomposition failed")
+
+        val wr2: Vec[Double] = (wr: Vec[Double]).reversed
+        val vl2 = new mat.MatDouble(m.numRows, m.numRows, a)
+          .takeRows((0 until m.numRows).reverse.toArray)
+
+        EigenDecompositionSymmetric(vl2.T, wr2)
+      }
+    }
+
+  implicit def nonsymmEigen =
+    new MatUnaryOp[EigNS, EigenDecompositionNonSymmetric] {
+      def apply(m: Mat[Double]): EigenDecompositionNonSymmetric = {
+        assert(m.numRows == m.numCols)
+        val a = m.contents.clone
+
+        val vl = Array.ofDim[Double](m.numRows * m.numRows)
+        val wr = Array.ofDim[Double](m.numRows)
+        val wi = Array.ofDim[Double](m.numRows)
+
+        val workQuery = Array.ofDim[Double](1)
+        val info = new org.netlib.util.intW(0)
+
+        LAPACK.dgeev("V",
+                     "N",
+                     m.numRows,
+                     a,
+                     m.numRows,
+                     wr,
+                     wi,
+                     vl,
+                     m.numRows,
+                     null,
+                     1,
+                     workQuery,
+                     -1,
+                     info)
+
+        val work = Array.ofDim[Double](workQuery(0).toInt)
+
+        LAPACK.dgeev("V",
+                     "N",
+                     m.numRows,
+                     a,
+                     m.numRows,
+                     wr,
+                     wi,
+                     vl,
+                     m.numRows,
+                     null,
+                     1,
+                     work,
+                     work.size,
+                     info)
+
+        val success = lapackInfoMethod.get(info) == 0
+
+        if (!success) throw new RuntimeException("Eigen decomposition failed")
+
+        val reindex = array.argsort(wr).reverse
+        val wr2: Vec[Double] = (wr: Vec[Double])(reindex)
+        val wi2: Vec[Double] = (wi: Vec[Double])(reindex)
+        val vl2 = new mat.MatDouble(m.numRows, m.numRows, vl).takeRows(reindex)
+
+        EigenDecompositionNonSymmetric(vl2.T, wr2, wi2)
+      }
+    }
 
   implicit def svd = new MatUnaryOp[GeneralSVD, SVDResult] {
     def apply(m: Mat[Double]): SVDResult = {

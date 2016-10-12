@@ -226,3 +226,26 @@ class TraceSuite extends FunSuite {
   }
 
 }
+
+class EigNSSuite extends FunSuite {
+  test("2x2") {
+    val m1 = Mat(Vec(1d, 2d), Vec(3d, 4d))
+    assert(
+      m1.eigNonSymm.toString == EigenDecompositionNonSymmetric(
+        Mat(Vec(-0.5658, -0.8246), Vec(-0.9094, 0.4160)),
+        Vec(-0.3723, 5.3723).reversed,
+        Vec(0d, 0d)).toString)
+  }
+
+}
+
+class EigSSuite extends FunSuite {
+  test("2x2") {
+    val m1 = Mat(Vec(1d, 2d), Vec(2d, 1d))
+    assert(
+      m1.eigSymm.toString == EigenDecompositionSymmetric(
+        Mat(Vec(0.7071, 0.7071), Vec(-0.7071, 0.7071)),
+        Vec(3d, -1d)).toString)
+  }
+
+}

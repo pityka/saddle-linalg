@@ -103,4 +103,13 @@ trait LinalgOps {
   def isPositiveDefinite(implicit op: MatUnaryOp[TestPD, Boolean]): Boolean =
     op(self)
 
+  def eigNonSymm(
+      implicit op: MatUnaryOp[EigNS, EigenDecompositionNonSymmetric])
+    : EigenDecompositionNonSymmetric =
+    op(self)
+
+  def eigSymm(implicit op: MatUnaryOp[EigS, EigenDecompositionSymmetric])
+    : EigenDecompositionSymmetric =
+    op(self)
+
 }
