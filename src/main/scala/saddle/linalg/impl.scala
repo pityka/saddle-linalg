@@ -2,8 +2,7 @@ package org.saddle.linalg
 
 import org.saddle._
 
-case class DPotrfException(i: Int)
-    extends java.lang.Exception(s"""|dpotrf error, info=$i
+class DPotrfException(i: Int) extends Exception(s"""|dpotrf error, info=$i
               |*  INFO    (output) INTEGER
 |*          = 0:  successful exit
 |*          < 0:  if INFO = -i, the i-th argument had an illegal value
@@ -156,7 +155,7 @@ trait OpImpl {
         new mat.MatDouble(m.numCols, m.numCols, array)
 
       } else if (lapackInfoMethod.get(info) != 0) {
-        throw DPotrfException(lapackInfoMethod.get(info).asInstanceOf[Int])
+        throw new DPotrfException(lapackInfoMethod.get(info).asInstanceOf[Int])
       } else {
         throw new RuntimeException(
           "ERROR in dpotri info=" + lapackInfoMethod
