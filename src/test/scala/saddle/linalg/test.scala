@@ -218,6 +218,24 @@ class SVD extends FunSuite {
   }
 }
 
+// class SVDTruncated extends FunSuite {
+//
+//   test("3x2") {
+//     val m = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d))
+//     val m1 = m.svd(2)
+//     // val sigma = Mat(mat.diag(m1.sigma).T.cols :+ Vec(0d, 0d): _*)
+//     // val back = (m1.u mm sigma mm m1.vt)
+//     println(m1)
+//
+//     println(m.svd)
+//     // assert(back.roundTo(10) == m)
+//     // assert(
+//     //   m1.u.roundTo(7) == Mat(Vec(-0.6196295, -0.7848945),
+//     //                          Vec(-0.7848945, 0.6196295)))
+//
+//   }
+// }
+
 class TraceSuite extends FunSuite {
   test("1x2") {
     val m1 = Mat(Vec(1d, 2d), Vec(3d, 4d))
@@ -246,6 +264,22 @@ class EigSSuite extends FunSuite {
       m1.eigSymm.toString == EigenDecompositionSymmetric(
         Mat(Vec(0.7071, 0.7071), Vec(-0.7071, 0.7071)),
         Vec(3d, -1d)).toString)
+  }
+
+}
+
+class EigSTruncSuite extends FunSuite {
+  test("2x2") {
+    val m1 = Mat(Vec(1d, 2d), Vec(2d, 1d))
+    assert(
+      m1.eigSymm(2).toString == EigenDecompositionSymmetric(
+        Mat(Vec(0.7071, 0.7071), Vec(-0.7071, 0.7071)),
+        Vec(3d, -1d)).toString)
+
+    assert(
+      m1.eigSymm(1).toString == EigenDecompositionSymmetric(
+        Mat(Vec(0.7071, 0.7071)),
+        Vec(3d)).toString)
   }
 
 }

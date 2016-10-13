@@ -30,6 +30,11 @@ trait MatUnaryOp[O, Res] {
   def apply(a: Mat[Double]): Res
 }
 
+@implicitNotFound(msg = "${O} not found")
+trait MatUnaryOp1Scalar[O, T, Res] {
+  def apply(a: Mat[Double], s: T): Res
+}
+
 trait LinalgOps {
   val self: Mat[Double]
   type B = Mat[Double]
@@ -96,6 +101,10 @@ trait LinalgOps {
 
   def svd(implicit op: MatUnaryOp[GeneralSVD, SVDResult]): SVDResult = op(self)
 
+  // def svd(max: Int)(
+  //     implicit op: MatUnaryOp1Scalar[GeneralSVDTrunc, Int, SVDResult])
+  //   : SVDResult = op(self, max)
+
   def trace(implicit op: MatUnaryOp[Trace, Double]): Double = op(self)
 
   def diag(implicit op: MatUnaryOp[Diag, Vec[Double]]): Vec[Double] = op(self)
@@ -111,5 +120,12 @@ trait LinalgOps {
   def eigSymm(implicit op: MatUnaryOp[EigS, EigenDecompositionSymmetric])
     : EigenDecompositionSymmetric =
     op(self)
+
+  def eigSymm(i: Int)(
+      implicit op: MatUnaryOp1Scalar[EigSTrunc,
+                                     Int,
+                                     EigenDecompositionSymmetric])
+    : EigenDecompositionSymmetric =
+    op(self, i)
 
 }

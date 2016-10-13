@@ -24,13 +24,84 @@ trait OpImpl {
 
   lazy val LAPACK = com.github.fommil.netlib.LAPACK.getInstance
 
+  implicit def symmEigenTrunc =
+    new MatUnaryOp1Scalar[EigSTrunc, Int, EigenDecompositionSymmetric] {
+      def apply(m: Mat[Double], k: Int): EigenDecompositionSymmetric = {
+        assert(m.numRows == m.numCols)
+        val K = math.min(m.numRows, k)
+        val a = m.contents.clone
+
+        val vl = Array.ofDim[Double](m.numRows * K)
+        val wr = Array.ofDim[Double](K)
+
+        val workQuery = Array.ofDim[Double](1)
+        val info = new org.netlib.util.intW(0)
+        val outw = new org.netlib.util.intW(0)
+        val ifail = Array.ofDim[Int](K)
+        val iwork = Array.ofDim[Int](5 * m.numRows)
+
+        LAPACK.dsyevx("V",
+                      "I",
+                      "U",
+                      m.numRows,
+                      a,
+                      m.numRows,
+                      0d,
+                      0d,
+                      1,
+                      K,
+                      0d,
+                      outw,
+                      wr,
+                      vl,
+                      m.numRows,
+                      workQuery,
+                      -1,
+                      iwork,
+                      ifail,
+                      info)
+
+        val work = Array.ofDim[Double](workQuery(0).toInt)
+
+        LAPACK.dsyevx("V",
+                      "I",
+                      "U",
+                      m.numRows,
+                      a,
+                      m.numRows,
+                      0d,
+                      0d,
+                      m.numRows - K + 1,
+                      m.numRows,
+                      0d,
+                      outw,
+                      wr,
+                      vl,
+                      m.numRows,
+                      work,
+                      work.size,
+                      iwork,
+                      ifail,
+                      info)
+
+        val success = lapackInfoMethod.get(info) == 0
+
+        if (!success) throw new RuntimeException("Eigen decomposition failed")
+
+        val wr2: Vec[Double] = (wr: Vec[Double]).reversed
+        val vl2 = new mat.MatDouble(K, m.numRows, vl)
+          .takeRows((0 until K).reverse.toArray)
+
+        EigenDecompositionSymmetric(vl2.T, wr2)
+      }
+    }
+
   implicit def symmEigen =
     new MatUnaryOp[EigS, EigenDecompositionSymmetric] {
       def apply(m: Mat[Double]): EigenDecompositionSymmetric = {
         assert(m.numRows == m.numCols)
         val a = m.contents.clone
 
-        val vl = Array.ofDim[Double](m.numRows * m.numRows)
         val wr = Array.ofDim[Double](m.numRows)
 
         val workQuery = Array.ofDim[Double](1)
@@ -113,6 +184,88 @@ trait OpImpl {
         EigenDecompositionNonSymmetric(vl2.T, wr2, wi2)
       }
     }
+
+  // implicit def svdtrunc =
+  //   new MatUnaryOp1Scalar[GeneralSVDTrunc, Int, SVDResult] {
+  //     def apply(m: Mat[Double], k: Int): SVDResult = {
+  //       val K = math.min(k, math.min(m.numRows, m.numCols))
+  //
+  //       /** Lapack gives us the SVD of the transpose
+  //         * t(a) = v t(s) t(u)
+  //         *   a  = u s t(v)
+  //         */
+  //       val cop = m.contents.clone
+  //       val s = Array.ofDim[Double](K)
+  //       val u = Array.ofDim[Double](m.numCols * K)
+  //       val vt = Array.ofDim[Double](m.numRows * K)
+  //       val lworkQuery = Array.ofDim[Double](1)
+  //       val info = new org.netlib.util.intW(0)
+  //       val ns = new org.netlib.util.intW(0)
+  //
+  //       // 1. Workspace query
+  //       LAPACKE.dgesvdx(
+  //         "A", // JOBU,
+  //         "A", // JOBVT,
+  //         "I", // RANGE
+  //         m.numCols, // M,
+  //         m.numRows, // N,
+  //         cop, // A,
+  //         m.numCols, // LDA,
+  //         0d, //VL (not referenced)
+  //         0d, //VU (not referenced)
+  //         1, // IL,
+  //         K, // IU
+  //         ns, // NS
+  //         s, // S,
+  //         u, // U,
+  //         m.numCols, // LDU,
+  //         vt, // VT,
+  //         m.numRows, // LDVT,
+  //         lworkQuery, // WORK,
+  //         -1, // LWORK,
+  //         info // INFO
+  //       )
+  //
+  //       val lwork = lworkQuery(0).toInt
+  //       val work = Array.ofDim[Double](lwork)
+  //
+  //       LAPACKE.dgesvdx(
+  //         "A", // JOBU,
+  //         "A", // JOBVT,
+  //         "I", // RANGE
+  //         m.numCols, // M,
+  //         m.numRows, // N,
+  //         cop, // A,
+  //         m.numCols, // LDA,
+  //         0d, //VL (not referenced)
+  //         0d, //VU (not referenced)
+  //         1, // IL,
+  //         K, // IU
+  //         ns, // NS
+  //         s, // S,
+  //         u, // U,
+  //         m.numCols, // LDU,
+  //         vt, // VT,
+  //         m.numRows, // LDVT,
+  //         work, // WORK,
+  //         lwork, // LWORK,
+  //         info // INFO
+  //       )
+  //
+  //       if (lapackInfoMethod.get(info) == 0) {
+  //         val ut: Mat[Double] = new mat.MatDouble(m.numRows, K, vt)
+  //         val v: Mat[Double] = new mat.MatDouble(K, m.numCols, u)
+  //         val sigma: Vec[Double] = Vec(s: _*)
+  //
+  //         SVDResult(
+  //           u = ut,
+  //           sigma = sigma,
+  //           vt = v
+  //         )
+  //       } else throw new RuntimeException("SVD Failed")
+  //
+  //     }
+  //   }
 
   implicit def svd = new MatUnaryOp[GeneralSVD, SVDResult] {
     def apply(m: Mat[Double]): SVDResult = {
