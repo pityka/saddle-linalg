@@ -101,9 +101,9 @@ trait LinalgOps {
 
   def svd(implicit op: MatUnaryOp[GeneralSVD, SVDResult]): SVDResult = op(self)
 
-  // def svd(max: Int)(
-  //     implicit op: MatUnaryOp1Scalar[GeneralSVDTrunc, Int, SVDResult])
-  //   : SVDResult = op(self, max)
+  def svd(max: Int)(
+      implicit op: MatUnaryOp1Scalar[GeneralSVDTrunc, Int, SVDResult])
+    : SVDResult = op(self, max)
 
   def trace(implicit op: MatUnaryOp[Trace, Double]): Double = op(self)
 
@@ -127,5 +127,8 @@ trait LinalgOps {
                                      EigenDecompositionSymmetric])
     : EigenDecompositionSymmetric =
     op(self, i)
+
+  def solve(other: B)(implicit op: MatBinOp[GeneralSolve, B]): B =
+    op(self, other)
 
 }

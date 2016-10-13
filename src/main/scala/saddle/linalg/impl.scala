@@ -779,4 +779,33 @@ trait OpImpl {
       lapackInfoMethod.get(info) == 0
     }
   }
+
+  implicit def svdtrunc =
+    new MatUnaryOp1Scalar[GeneralSVDTrunc, Int, SVDResult] {
+      def apply(m: Mat[Double], k: Int): SVDResult = {
+        val K = math.min(k, math.min(m.numRows, m.numCols))
+
+        if (m.numRows <= m.numCols) {
+          val xxt = m.outerM
+          val EigenDecompositionSymmetric(u, lambda) = xxt.eigSymm(K)
+          val sigma = lambda.map(math.sqrt)
+          // inv(u) = t(u)
+          val utm = u tmm m
+
+          /* replace with solver */
+          val vt = mat.diag(sigma).invert mm utm
+          SVDResult(u, sigma, vt)
+        } else {
+          val xtx = m.innerM
+          val EigenDecompositionSymmetric(v, lambda) = xtx.eigSymm(K)
+          val sigma = lambda.map(math.sqrt)
+
+          val mv = m mm v
+          val u = mv mm mat.diag(sigma).invert
+
+          SVDResult(u, sigma, v.T)
+        }
+
+      }
+    }
 }

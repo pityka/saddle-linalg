@@ -19,7 +19,7 @@ trait InvertWithLU
 trait InvertPDCholesky
 
 trait GeneralSVD
-// trait GeneralSVDTrunc
+trait GeneralSVDTrunc
 
 trait Trace
 
@@ -31,6 +31,8 @@ trait EigS
 trait EigSTrunc
 trait EigNS
 trait EigNSTrunc
+
+trait GeneralSolve
 
 // from lapack:
 // inverse of A'A from A (QR) (http://scicomp.stackexchange.com/questions/3188/dealing-with-the-inverse-of-a-positive-definite-symmetric-covariance-matrix)

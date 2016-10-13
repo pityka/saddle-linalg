@@ -218,23 +218,33 @@ class SVD extends FunSuite {
   }
 }
 
-// class SVDTruncated extends FunSuite {
-//
-//   test("3x2") {
-//     val m = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d))
-//     val m1 = m.svd(2)
-//     // val sigma = Mat(mat.diag(m1.sigma).T.cols :+ Vec(0d, 0d): _*)
-//     // val back = (m1.u mm sigma mm m1.vt)
-//     println(m1)
-//
-//     println(m.svd)
-//     // assert(back.roundTo(10) == m)
-//     // assert(
-//     //   m1.u.roundTo(7) == Mat(Vec(-0.6196295, -0.7848945),
-//     //                          Vec(-0.7848945, 0.6196295)))
-//
-//   }
-// }
+class SVDTruncated extends FunSuite {
+
+  test("3x2") {
+    val m = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d))
+    val mfull = m.svd(2)
+
+    val sigma = Mat(mat.diag(mfull.sigma).T.cols: _*)
+    val back = (mfull.u mm sigma mm mfull.vt)
+    assert(back.roundTo(10) == m)
+    val m1 = m.svd(1)
+
+    assert(m1.u.roundTo(7) == Mat(Vec(0.6196295, 0.7848945)))
+
+  }
+
+  test("2x3") {
+    val m = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d)).T
+    val mfull = m.svd(2)
+
+    val sigma = Mat(mat.diag(mfull.sigma).T.cols: _*)
+    val back = (mfull.u mm sigma mm mfull.vt)
+    assert(back.roundTo(10) == m)
+    val m1 = m.svd(1)
+    assert(m1.u.roundTo(4) == Mat(Vec(0.2298, 0.5247, 0.8196)))
+
+  }
+}
 
 class TraceSuite extends FunSuite {
   test("1x2") {
