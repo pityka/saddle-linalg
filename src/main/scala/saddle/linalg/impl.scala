@@ -789,23 +789,27 @@ trait OpImpl {
           val xxt = m.outerM
           val EigenDecompositionSymmetric(u, lambda) = xxt.eigSymm(K)
           val sigma = lambda.map(math.sqrt)
+          val sigmainv = sigma.map(x => 1d / x)
           // inv(u) = t(u)
           val utm = u tmm m
 
-          /* replace with solver */
-          val vt = mat.diag(sigma).invert mm utm
+          // inv(diag(sigma)) * utm
+          val vt = Mat(utm.rows.zip(sigmainv.toSeq).map(x => x._1 * x._2): _*).T
           SVDResult(u, sigma, vt)
         } else {
           val xtx = m.innerM
           val EigenDecompositionSymmetric(v, lambda) = xtx.eigSymm(K)
           val sigma = lambda.map(math.sqrt)
+          val sigmainv = sigma.map(x => 1d / x)
 
           val mv = m mm v
-          val u = mv mm mat.diag(sigma).invert
+          // mv * inv(diag(sigma))
+          val u = Mat(mv.cols.zip(sigmainv.toSeq).map(x => x._1 * x._2): _*)
 
           SVDResult(u, sigma, v.T)
         }
 
       }
     }
+
 }
