@@ -84,7 +84,7 @@ trait OpImpl {
                       ifail,
                       info)
 
-        val success = lapackInfoMethod.get(info) == 0
+        val success = info.`val` == 0
 
         if (!success) throw new RuntimeException("Eigen decomposition failed")
 
@@ -115,7 +115,7 @@ trait OpImpl {
         LAPACK
           .dsyev("V", "U", m.numRows, a, m.numRows, wr, work, work.size, info)
 
-        val success = lapackInfoMethod.get(info) == 0
+        val success = info.`val` == 0
 
         if (!success) throw new RuntimeException("Eigen decomposition failed")
 
@@ -172,7 +172,7 @@ trait OpImpl {
                      work.size,
                      info)
 
-        val success = lapackInfoMethod.get(info) == 0
+        val success = info.`val` == 0
 
         if (!success) throw new RuntimeException("Eigen decomposition failed")
 
@@ -319,7 +319,7 @@ trait OpImpl {
         info // INFO
       )
 
-      if (lapackInfoMethod.get(info) == 0) {
+      if (info.`val` == 0) {
         val ut: Mat[Double] = new mat.MatDouble(m.numRows, m.numRows, vt)
         val v: Mat[Double] = new mat.MatDouble(m.numCols, m.numCols, u)
         val sigma: Vec[Double] = Vec(s: _*)
@@ -373,42 +373,42 @@ trait OpImpl {
     }
   }
 
-  private val lapackInfoMethod =
-    java.lang.Class.forName("org.netlib.util.intW").getField("val")
+  // private val lapackInfoMethod =
+  //   java.lang.Class.forName("org.netlib.util.intW").getField("val")
 
-  implicit def invertPD = new MatUnaryOp[InvertPDCholesky, Mat[Double]] {
-    def apply(m: Mat[Double]): Mat[Double] = {
+  implicit def invertPD =
+    new MatUnaryOp[InvertPDCholesky, Option[Mat[Double]]] {
+      def apply(m: Mat[Double]): Option[Mat[Double]] = {
 
-      val marray = m.contents
-      val array = marray.clone
-      val info = new org.netlib.util.intW(0)
-      val info2 = new org.netlib.util.intW(0)
+        val marray = m.contents
+        val array = marray.clone
+        val info = new org.netlib.util.intW(0)
+        val info2 = new org.netlib.util.intW(0)
 
-      LAPACK.dpotrf("L", m.numCols, array, m.numCols, info)
-      LAPACK.dpotri("L", m.numCols, array, m.numCols, info2)
+        LAPACK.dpotrf("L", m.numCols, array, m.numCols, info)
+        LAPACK.dpotri("L", m.numCols, array, m.numCols, info2)
 
-      if (lapackInfoMethod.get(info) == 0 && lapackInfoMethod
-            .get(info2) == 0) {
+        if (info.`val` == 0 && info2.`val` == 0) {
 
-        var i = 0
-        var j = 0
-        while (i < m.numCols) {
-          while (j < i) {
-            array(i * m.numCols + j) = array(j * m.numCols + i)
-            j += 1
+          var i = 0
+          var j = 0
+          while (i < m.numCols) {
+            while (j < i) {
+              array(i * m.numCols + j) = array(j * m.numCols + i)
+              j += 1
+            }
+            j = 0
+            i += 1
           }
-          j = 0
-          i += 1
-        }
 
-        new mat.MatDouble(m.numCols, m.numCols, array)
+          Some(new mat.MatDouble(m.numCols, m.numCols, array))
 
-      } else if (lapackInfoMethod.get(info) != 0) {
-        throw new DPotrfException(lapackInfoMethod.get(info).asInstanceOf[Int])
-      } else {
-        throw new RuntimeException(
-          "ERROR in dpotri info=" + lapackInfoMethod
-            .get(info2) + """
+        } else if (info.`val` != 0) {
+          if (info.`val` > 0) None
+          else throw new DPotrfException(info.`val`)
+        } else {
+          throw new RuntimeException(
+            "ERROR in dpotri info=" + info2.`val` + """
                       |lapack says:
                       |      INFO    (output) INTEGER
                     |= 0:  successful exit
@@ -416,10 +416,10 @@ trait OpImpl {
                     |value
                     |> 0:  if INFO = i, the (i,i) element of the factor U
                     |or L is zero, and the inverse could not be computed.""".stripMargin + ", matrix: " + m.toString)
-      }
+        }
 
+      }
     }
-  }
 
   implicit def mult1 =
     new MatBinOp[AxB, Mat[Double]] {
@@ -776,7 +776,7 @@ trait OpImpl {
       val array = marray.clone
       val info = new org.netlib.util.intW(0)
       LAPACK.dpotrf("L", m.numCols, array, m.numCols, info)
-      lapackInfoMethod.get(info) == 0
+      info.`val` == 0
     }
   }
 

@@ -43,7 +43,9 @@ trait LinalgOps {
 
   def invert(implicit op: MatUnaryOp[InvertWithLU, B]): B = op(self)
 
-  def invertPD(implicit op: MatUnaryOp[InvertPDCholesky, B]): B = op(self)
+  def invertPD(
+      implicit op: MatUnaryOp[InvertPDCholesky, Option[B]]): Option[B] =
+    op(self)
 
   /**
     * Simple DGEMM

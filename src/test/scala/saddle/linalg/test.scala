@@ -195,7 +195,10 @@ class InvertPDSuite extends FunSuite {
     val m1 = Mat(Vec(1d, 2d), Vec(3d, 4d))
       .mmt(Mat(Vec(1d, 2d), Vec(3d, 4d)))
       .invertPD
+      .get
       .roundTo(10)
+
+    assert(Mat(Vec(1d, 2d), Vec(3d, 4d)).invertPD == None)
 
     assert(m1 == Mat(Vec(5d, -3.5), Vec(-3.5, 2.5d)))
   }
