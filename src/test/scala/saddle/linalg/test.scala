@@ -249,6 +249,25 @@ class SVDTruncated extends FunSuite {
   }
 }
 
+class SingulvarValues extends FunSuite {
+
+  test("3x2") {
+    val m = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d))
+    val sv: Vec[Double] = m.singularValues(2)
+
+    assert(sv == Vec(9.52551809156511, 0.5143005806586431))
+
+  }
+
+  test("2x3") {
+    val m = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d)).T
+    val sv = m.singularValues(2)
+
+    assert(sv == Vec(9.52551809156511, 0.5143005806586431))
+
+  }
+}
+
 class TraceSuite extends FunSuite {
   test("1x2") {
     val m1 = Mat(Vec(1d, 2d), Vec(3d, 4d))

@@ -133,4 +133,12 @@ trait LinalgOps {
   def solve(other: B)(implicit op: MatBinOp[GeneralSolve, B]): B =
     op(self, other)
 
+  def singularValues(max: Int)(
+      implicit op: MatUnaryOp1Scalar[SingularValues, Int, Vec[Double]])
+    : Vec[Double] = op(self, max)
+
+  def eigenValuesSymm(max: Int)(
+      implicit op: MatUnaryOp1Scalar[EigValSymTrunc, Int, Vec[Double]])
+    : Vec[Double] = op(self, max)
+
 }

@@ -21,6 +21,8 @@ trait InvertPDCholesky
 trait GeneralSVD
 trait GeneralSVDTrunc
 
+trait SingularValues
+
 trait Trace
 
 trait Diag
@@ -31,6 +33,7 @@ trait EigS
 trait EigSTrunc
 trait EigNS
 trait EigNSTrunc
+trait EigValSymTrunc
 
 trait GeneralSolve
 

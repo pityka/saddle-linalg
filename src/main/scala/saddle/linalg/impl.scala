@@ -24,6 +24,75 @@ trait OpImpl {
 
   lazy val LAPACK = com.github.fommil.netlib.LAPACK.getInstance
 
+  implicit def symmEigenValueTrunc =
+    new MatUnaryOp1Scalar[EigValSymTrunc, Int, Vec[Double]] {
+      def apply(m: Mat[Double], k: Int): Vec[Double] = {
+        assert(m.numRows == m.numCols)
+        val K = math.min(m.numRows, k)
+        val a = m.contents.clone
+
+        val vl = Array.ofDim[Double](1)
+        val wr = Array.ofDim[Double](K)
+
+        val workQuery = Array.ofDim[Double](1)
+        val info = new org.netlib.util.intW(0)
+        val outw = new org.netlib.util.intW(0)
+        val ifail = Array.ofDim[Int](K)
+        val iwork = Array.ofDim[Int](5 * m.numRows)
+
+        LAPACK.dsyevx("N",
+                      "I",
+                      "U",
+                      m.numRows,
+                      a,
+                      m.numRows,
+                      0d,
+                      0d,
+                      1,
+                      K,
+                      0d,
+                      outw,
+                      wr,
+                      vl,
+                      m.numRows,
+                      workQuery,
+                      -1,
+                      iwork,
+                      ifail,
+                      info)
+
+        val work = Array.ofDim[Double](workQuery(0).toInt)
+
+        LAPACK.dsyevx("N",
+                      "I",
+                      "U",
+                      m.numRows,
+                      a,
+                      m.numRows,
+                      0d,
+                      0d,
+                      m.numRows - K + 1,
+                      m.numRows,
+                      0d,
+                      outw,
+                      wr,
+                      vl,
+                      m.numRows,
+                      work,
+                      work.size,
+                      iwork,
+                      ifail,
+                      info)
+
+        val success = info.`val` == 0
+
+        if (!success) throw new RuntimeException("Eigen decomposition failed")
+
+        val wr2: Vec[Double] = (wr: Vec[Double]).reversed
+        wr2
+      }
+    }
+
   implicit def symmEigenTrunc =
     new MatUnaryOp1Scalar[EigSTrunc, Int, EigenDecompositionSymmetric] {
       def apply(m: Mat[Double], k: Int): EigenDecompositionSymmetric = {
@@ -807,6 +876,22 @@ trait OpImpl {
           val u = Mat(mv.cols.zip(sigmainv.toSeq).map(x => x._1 * x._2): _*)
 
           SVDResult(u, sigma, v.T)
+        }
+
+      }
+    }
+
+  implicit def singularValues =
+    new MatUnaryOp1Scalar[SingularValues, Int, Vec[Double]] {
+      def apply(m: Mat[Double], k: Int): Vec[Double] = {
+        val K = math.min(k, math.min(m.numRows, m.numCols))
+
+        if (m.numRows <= m.numCols) {
+          val xxt = m.outerM
+          xxt.eigenValuesSymm(K).map(math.sqrt)
+        } else {
+          val xtx = m.innerM
+          xtx.eigenValuesSymm(K).map(math.sqrt)
         }
 
       }
