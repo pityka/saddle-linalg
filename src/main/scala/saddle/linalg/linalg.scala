@@ -101,6 +101,14 @@ trait LinalgOps {
       implicit op: MatGemmSelfOp[aAxAtpbC, Mat[Double]]): B =
     op(self, c, alpha, beta)
 
+  def mDiagFromLeft(diag: Vec[Double])(
+      implicit op: MatUnaryOp1Scalar[DiagxA, Vec[Double], B]): B =
+    op(self, diag)
+
+  def mDiagFromRight(diag: Vec[Double])(
+      implicit op: MatUnaryOp1Scalar[AxDiag, Vec[Double], B]): B =
+    op(self, diag)
+
   def svd(implicit op: MatUnaryOp[GeneralSVD, SVDResult]): SVDResult = op(self)
 
   def svd(max: Int)(

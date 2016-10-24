@@ -897,4 +897,56 @@ trait OpImpl {
       }
     }
 
+  /* D * M */
+  implicit def multDiagFromLeft =
+    new MatUnaryOp1Scalar[DiagxA, Vec[Double], Mat[Double]] {
+      def apply(a: Mat[Double], b: Vec[Double]): Mat[Double] = {
+        // assert(a.numRows == b.numCols,
+        //        s"Incorrect dimensions ${a.numRows} ${b.numCols}")
+
+        val result = Array.ofDim[Double](a.numCols * b.length)
+        val ac = a.contents
+
+        val I = b.length
+        val J = a.numCols
+        var i = 0
+        var j = 0
+        while (i < I) {
+          while (j < J) {
+            result(i * J + j) = a.contents(i * J + j) * b.raw(i)
+            j += 1
+          }
+          j = 0
+          i += 1
+        }
+
+        new mat.MatDouble(b.length, a.numCols, result)
+      }
+    }
+
+  /* M * D */
+  implicit def multDiagFromRight =
+    new MatUnaryOp1Scalar[AxDiag, Vec[Double], Mat[Double]] {
+      def apply(a: Mat[Double], b: Vec[Double]): Mat[Double] = {
+
+        val result = Array.ofDim[Double](a.numRows * b.length)
+
+        val ac = a.contents
+        val I = a.numRows
+        val J = b.length
+        var i = 0
+        var j = 0
+        while (i < I) {
+          while (j < J) {
+            result(i * J + j) = a.contents(i * a.numCols + j) * b.raw(j)
+            j += 1
+          }
+          j = 0
+          i += 1
+        }
+
+        new mat.MatDouble(a.numRows, b.length, result)
+      }
+    }
+
 }

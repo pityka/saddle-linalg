@@ -315,3 +315,28 @@ class EigSTruncSuite extends FunSuite {
   }
 
 }
+
+class DxMSuite extends FunSuite {
+  test("2x2") {
+    val m1 = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d))
+
+    assert(m1.mDiagFromLeft(Vec(10d)) == Mat(Vec(10d), Vec(30d), Vec(50d)))
+    assert(
+      m1.mDiagFromLeft(Vec(10d, 0.5)) == Mat(Vec(10d, 1d),
+                                             Vec(30d, 2d),
+                                             Vec(50d, 3d)))
+  }
+
+}
+
+class MxDSuite extends FunSuite {
+  test("2x2") {
+    val m1 = Mat(Vec(1d, 2d, 3d), Vec(3d, 4d, 5d))
+
+    assert(m1.mDiagFromRight(Vec(10d)) == Mat(Vec(10d, 20d, 30d)))
+    assert(
+      m1.mDiagFromRight(Vec(10d, 0.5)) == Mat(Vec(10d, 20d, 30d),
+                                              Vec(1.5, 2d, 2.5)))
+  }
+
+}
