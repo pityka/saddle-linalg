@@ -15,6 +15,11 @@ trait AtxA
 trait aAxAtpbC
 trait aAtxApbC
 
+trait AxV // matrix x vector
+trait AtxV
+trait aAxVpbC
+trait aAtxVpbC
+
 trait InvertWithLU
 trait InvertPDCholesky
 

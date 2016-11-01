@@ -24,6 +24,52 @@ trait OpImpl {
 
   lazy val LAPACK = com.github.fommil.netlib.LAPACK.getInstance
 
+  implicit def dgemv =
+    new MatUnaryOp1Scalar[AxV, Vec[Double], Vec[Double]] {
+      def apply(a: Mat[Double], b: Vec[Double]): Vec[Double] = {
+        assert(a.numCols == b.length,
+               s"Incorrect dimensions ${a.numCols} ${b.length}")
+
+        val result = Array.ofDim[Double](a.numRows)
+
+        BLAS.dgemv("T",
+                   a.numCols,
+                   a.numRows,
+                   1.0,
+                   a.contents,
+                   a.numCols,
+                   b,
+                   1,
+                   0.0,
+                   result,
+                   1)
+        result
+      }
+    }
+
+  implicit def dgemvT =
+    new MatUnaryOp1Scalar[AtxV, Vec[Double], Vec[Double]] {
+      def apply(a: Mat[Double], b: Vec[Double]): Vec[Double] = {
+        assert(a.numRows == b.length,
+               s"Incorrect dimensions ${a.numRows} ${b.length}")
+
+        val result = Array.ofDim[Double](a.numCols)
+
+        BLAS.dgemv("N",
+                   a.numCols,
+                   a.numRows,
+                   1.0,
+                   a.contents,
+                   a.numCols,
+                   b,
+                   1,
+                   0.0,
+                   result,
+                   1)
+        result
+      }
+    }
+
   implicit def symmEigenValueTrunc =
     new MatUnaryOp1Scalar[EigValSymTrunc, Int, Vec[Double]] {
       def apply(m: Mat[Double], k: Int): Vec[Double] = {

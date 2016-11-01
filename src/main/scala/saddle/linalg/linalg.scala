@@ -47,6 +47,17 @@ trait LinalgOps {
       implicit op: MatUnaryOp[InvertPDCholesky, Option[B]]): Option[B] =
     op(self)
 
+  /* DGEMV */
+  def mv(other: Vec[Double])(
+      implicit op: MatUnaryOp1Scalar[AxV, Vec[Double], Vec[Double]])
+    : Vec[Double] =
+    op(self, other)
+
+  def tmv(other: Vec[Double])(
+      implicit op: MatUnaryOp1Scalar[AtxV, Vec[Double], Vec[Double]])
+    : Vec[Double] =
+    op(self, other)
+
   /**
     * Simple DGEMM
     */
