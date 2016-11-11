@@ -3,6 +3,15 @@ package org.saddle.linalg
 import org.saddle._
 import org.scalatest.FunSuite
 
+class VV1Suite extends FunSuite {
+  test("1x3") {
+    val m1 = Vec(1d, 2d, 3d)
+    val m2 = Vec(4d, 5d, 6d)
+    assert((m1 vv m2) == (4d + 10d + 18d))
+  }
+
+}
+
 class MV1Suite extends FunSuite {
   test("1x3") {
     val m1 = Mat(Vec(1d, 2d, 3d), Vec(4d, 5d, 6d)).T

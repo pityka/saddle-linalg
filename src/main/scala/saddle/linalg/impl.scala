@@ -24,6 +24,17 @@ trait OpImpl {
 
   lazy val LAPACK = com.github.fommil.netlib.LAPACK.getInstance
 
+  implicit def ddot =
+    new VecBinOp[Vec[Double], Double] {
+      def apply(a: Vec[Double], b: Vec[Double]): Double = {
+        assert(a.length == b.length,
+               s"Incorrect dimensions ${a.length} ${b.length}")
+
+        BLAS.ddot(a.length, a, 1, b, 1)
+
+      }
+    }
+
   implicit def dgemv =
     new MatUnaryOp1Scalar[AxV, Vec[Double], Vec[Double]] {
       def apply(a: Mat[Double], b: Vec[Double]): Vec[Double] = {

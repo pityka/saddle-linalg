@@ -4,7 +4,7 @@ import org.saddle._
 import scala.{specialized => spec}
 import annotation.implicitNotFound
 
-class Pimp(val self: Mat[Double]) extends LinalgOps
+class MatPimp(val self: Mat[Double]) extends MatLinalgOps
 
 @implicitNotFound(msg = "${O} not found")
 trait MatBinOp[O, Res] {
@@ -35,7 +35,7 @@ trait MatUnaryOp1Scalar[O, T, Res] {
   def apply(a: Mat[Double], s: T): Res
 }
 
-trait LinalgOps {
+trait MatLinalgOps {
   val self: Mat[Double]
   type B = Mat[Double]
 

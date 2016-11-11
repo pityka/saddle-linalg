@@ -4,7 +4,7 @@ name := "saddle-linalg"
 
 organization := "io.github.pityka"
 
-version := "0.0.13"
+version := "0.0.14"
 
 libraryDependencies ++= Seq(
   "org.scala-saddle" %% "saddle-core" % "1.3.4",
