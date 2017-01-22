@@ -4,10 +4,10 @@ name := "saddle-linalg"
 
 organization := "io.github.pityka"
 
-version := "0.0.16"
+version := "0.0.17"
 
 libraryDependencies ++= Seq(
-  "org.scala-saddle" %% "saddle-core" % "1.3.4",
+  "io.github.pityka" %% "saddle-core" % "1.3.4-fork1-SNAPSHOT",
   "com.github.fommil.netlib" % "all" % "1.1.2" pomOnly (),
   "net.sourceforge.f2j" % "arpack_combined_all" % "0.1",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test"

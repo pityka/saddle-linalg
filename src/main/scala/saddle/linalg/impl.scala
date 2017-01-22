@@ -48,7 +48,7 @@ trait OpImpl {
                    a.numCols,
                    a.numRows,
                    1.0,
-                   a.contents,
+                   a.toArray,
                    a.numCols,
                    b,
                    1,
@@ -72,7 +72,7 @@ trait OpImpl {
                    a.numCols,
                    a.numRows,
                    1.0,
-                   a.contents,
+                   a.toArray,
                    a.numCols,
                    b,
                    1,
@@ -90,7 +90,7 @@ trait OpImpl {
         assert(m.numCols > 0)
         assert(m.numRows > 0)
         val K = math.min(m.numRows, k)
-        val a = m.contents.clone
+        val a = m.toArray.clone
 
         val vl = Array.ofDim[Double](1)
         val wr = Array.ofDim[Double](K)
@@ -161,7 +161,7 @@ trait OpImpl {
         assert(m.numCols > 0)
         assert(m.numRows > 0)
         val K = math.min(m.numRows, k)
-        val a = m.contents.clone
+        val a = m.toArray.clone
 
         val vl = Array.ofDim[Double](m.numRows * K)
         val wr = Array.ofDim[Double](K)
@@ -234,7 +234,7 @@ trait OpImpl {
         assert(m.numRows == m.numCols)
         assert(m.numCols > 0)
         assert(m.numRows > 0)
-        val a = m.contents.clone
+        val a = m.toArray.clone
 
         val wr = Array.ofDim[Double](m.numRows)
 
@@ -267,7 +267,7 @@ trait OpImpl {
         assert(m.numRows == m.numCols)
         assert(m.numCols > 0)
         assert(m.numRows > 0)
-        val a = m.contents.clone
+        val a = m.toArray.clone
 
         val vl = Array.ofDim[Double](m.numRows * m.numRows)
         val wr = Array.ofDim[Double](m.numRows)
@@ -330,7 +330,7 @@ trait OpImpl {
   //         * t(a) = v t(s) t(u)
   //         *   a  = u s t(v)
   //         */
-  //       val cop = m.contents.clone
+  //       val cop = m.toArray.clone
   //       val s = Array.ofDim[Double](K)
   //       val u = Array.ofDim[Double](m.numCols * K)
   //       val vt = Array.ofDim[Double](m.numRows * K)
@@ -412,7 +412,7 @@ trait OpImpl {
         * t(a) = v t(s) t(u)
         *   a  = u s t(v)
         */
-      val cop = m.contents.clone
+      val cop = m.toArray.clone
       val s = Array.ofDim[Double](math.min(m.numRows, m.numCols))
       val u = Array.ofDim[Double](m.numCols * m.numCols)
       val vt = Array.ofDim[Double](m.numRows * m.numRows)
@@ -476,7 +476,7 @@ trait OpImpl {
     def apply(m: Mat[Double]): Mat[Double] = {
       assert(m.numCols > 0)
       assert(m.numRows > 0)
-      val marray = m.contents
+      val marray = m.toArray
       val array = marray.clone
 
       val ipiv = Array.ofDim[Int](math.max(1, math.min(m.numCols, m.numRows)))
@@ -520,7 +520,7 @@ trait OpImpl {
       def apply(m: Mat[Double]): Option[Mat[Double]] = {
         assert(m.numCols > 0)
         assert(m.numRows > 0)
-        val marray = m.contents
+        val marray = m.toArray
         val array = marray.clone
         val info = new org.netlib.util.intW(0)
         val info2 = new org.netlib.util.intW(0)
@@ -579,9 +579,9 @@ trait OpImpl {
                    a.numRows, // N
                    b.numRows, // K
                    1.0, // alpha
-                   b.contents, // op(a) data
+                   b.toArray, // op(a) data
                    b.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    b.numRows, //ldb
                    0.0, // c
                    result, // c data
@@ -605,7 +605,7 @@ trait OpImpl {
         assert(a.numRows > 0)
         assert(a.numCols > 0)
 
-        val result = c.contents.clone
+        val result = c.toArray.clone
 
         BLAS.dgemm("N",
                    "N",
@@ -613,9 +613,9 @@ trait OpImpl {
                    a.numRows, // N
                    b.numRows, // K
                    alpha, // alpha
-                   b.contents, // op(a) data
+                   b.toArray, // op(a) data
                    b.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    b.numRows, //ldb
                    beta, // c
                    result, // c data
@@ -642,9 +642,9 @@ trait OpImpl {
                    a.numCols, // N cols of op(b)
                    b.numRows, // K cols of op(a)
                    1.0, // alpha
-                   b.contents, // op(a) data
+                   b.toArray, // op(a) data
                    b.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    a.numCols, //ldb
                    0.0, // c
                    result, // c data
@@ -668,7 +668,7 @@ trait OpImpl {
         assert(a.numRows > 0)
         assert(a.numCols > 0)
 
-        val result = c.contents.clone
+        val result = c.toArray.clone
 
         BLAS.dgemm("N", // op a
                    "T", // op b
@@ -676,9 +676,9 @@ trait OpImpl {
                    a.numCols, // N cols of op(b)
                    b.numRows, // K cols of op(a)
                    alpha, // alpha
-                   b.contents, // op(a) data
+                   b.toArray, // op(a) data
                    b.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    a.numCols, //ldb
                    beta, // c
                    result, // c data
@@ -701,9 +701,9 @@ trait OpImpl {
                    a.numCols, // N cols of op(b)
                    a.numRows, // K cols of op(a)
                    1.0, // alpha
-                   a.contents, // op(a) data
+                   a.toArray, // op(a) data
                    a.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    a.numCols, //ldb
                    0.0, // c
                    result, // c data
@@ -725,7 +725,7 @@ trait OpImpl {
         assert(a.numRows > 0)
         assert(a.numCols > 0)
 
-        val result = c.contents.clone
+        val result = c.toArray.clone
 
         BLAS.dgemm("N", // op a
                    "T", // op b
@@ -733,9 +733,9 @@ trait OpImpl {
                    a.numCols, // N cols of op(b)
                    a.numRows, // K cols of op(a)
                    alpha, // alpha
-                   a.contents, // op(a) data
+                   a.toArray, // op(a) data
                    a.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    a.numCols, //ldb
                    beta, // c
                    result, // c data
@@ -763,9 +763,9 @@ trait OpImpl {
                    a.numRows, // N
                    b.numCols, // K
                    1.0, // alpha
-                   b.contents, // op(a) data
+                   b.toArray, // op(a) data
                    b.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    b.numCols, //ldb
                    0.0, // c
                    result, // c data
@@ -789,9 +789,9 @@ trait OpImpl {
                    a.numRows, // N
                    a.numCols, // K
                    1.0, // alpha
-                   a.contents, // op(a) data
+                   a.toArray, // op(a) data
                    a.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    a.numCols, //ldb
                    0.0, // c
                    result, // c data
@@ -815,7 +815,7 @@ trait OpImpl {
         assert(a.numRows > 0)
         assert(a.numCols > 0)
 
-        val result = c.contents.clone
+        val result = c.toArray.clone
 
         BLAS.dgemm("T",
                    "N",
@@ -823,9 +823,9 @@ trait OpImpl {
                    a.numRows, // N
                    b.numCols, // K
                    alpha, // alpha
-                   b.contents, // op(a) data
+                   b.toArray, // op(a) data
                    b.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    b.numCols, //ldb
                    beta, // c
                    result, // c data
@@ -845,7 +845,7 @@ trait OpImpl {
         assert(a.numRows > 0)
         assert(a.numCols > 0)
 
-        val result = c.contents.clone
+        val result = c.toArray.clone
 
         BLAS.dgemm("T",
                    "N",
@@ -853,9 +853,9 @@ trait OpImpl {
                    a.numRows, // N
                    a.numCols, // K
                    alpha, // alpha
-                   a.contents, // op(a) data
+                   a.toArray, // op(a) data
                    a.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    a.numCols, //ldb
                    beta, // c
                    result, // c data
@@ -883,9 +883,9 @@ trait OpImpl {
                    a.numCols, // N cols of op(b)
                    b.numCols, // K cols of op(a)
                    1.0, // alpha
-                   b.contents, // op(a) data
+                   b.toArray, // op(a) data
                    b.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    a.numCols, //ldb
                    0.0, // c
                    result, // c data
@@ -908,7 +908,7 @@ trait OpImpl {
         assert(b.numRows > 0)
         assert(a.numRows > 0)
         assert(a.numCols > 0)
-        val result = c.contents.clone
+        val result = c.toArray.clone
 
         BLAS.dgemm("T", // op a
                    "T", // op b
@@ -916,9 +916,9 @@ trait OpImpl {
                    a.numCols, // N cols of op(b)
                    b.numCols, // K cols of op(a)
                    alpha, // alpha
-                   b.contents, // op(a) data
+                   b.toArray, // op(a) data
                    b.numCols, // lda
-                   a.contents, // op(b) data
+                   a.toArray, // op(b) data
                    a.numCols, //ldb
                    beta, // c
                    result, // c data
@@ -934,7 +934,7 @@ trait OpImpl {
         assert(a.numRows > 0)
         var s = 0.0
         var i = 0
-        val d = a.contents
+        val d = a.toArray
         while (i < a.numRows) {
           s += d(i * a.numRows + i)
           i += 1
@@ -948,7 +948,7 @@ trait OpImpl {
       def apply(a: Mat[Double]): Vec[Double] = {
         val b = Array.ofDim[Double](math.min(a.numRows, a.numCols))
         var i = 0
-        val d = a.contents
+        val d = a.toArray
         while (i < b.size) {
           b(i) = d(i * a.numRows + i)
           i += 1
@@ -961,7 +961,7 @@ trait OpImpl {
     def apply(m: Mat[Double]): Boolean = {
       assert(m.numCols > 0)
       assert(m.numRows > 0)
-      val marray = m.contents
+      val marray = m.toArray
       val array = marray.clone
       val info = new org.netlib.util.intW(0)
       LAPACK.dpotrf("L", m.numCols, array, m.numCols, info)
@@ -1029,7 +1029,7 @@ trait OpImpl {
         //        s"Incorrect dimensions ${a.numRows} ${b.numCols}")
 
         val result = Array.ofDim[Double](a.numCols * b.length)
-        val ac = a.contents
+        val ac = a.toArray
 
         val I = b.length
         val J = a.numCols
@@ -1037,7 +1037,7 @@ trait OpImpl {
         var j = 0
         while (i < I) {
           while (j < J) {
-            result(i * J + j) = a.contents(i * J + j) * b.raw(i)
+            result(i * J + j) = a.toArray(i * J + j) * b.raw(i)
             j += 1
           }
           j = 0
@@ -1055,14 +1055,14 @@ trait OpImpl {
 
         val result = Array.ofDim[Double](a.numRows * b.length)
 
-        val ac = a.contents
+        val ac = a.toArray
         val I = a.numRows
         val J = b.length
         var i = 0
         var j = 0
         while (i < I) {
           while (j < J) {
-            result(i * J + j) = a.contents(i * a.numCols + j) * b.raw(j)
+            result(i * J + j) = a.toArray(i * a.numCols + j) * b.raw(j)
             j += 1
           }
           j = 0
