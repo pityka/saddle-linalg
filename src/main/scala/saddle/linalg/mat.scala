@@ -31,6 +31,11 @@ trait MatUnaryOp[O, Res] {
 }
 
 @implicitNotFound(msg = "${O} not found")
+trait MatUnaryOp1ScalarTarget[O, T] {
+  def apply(a: Mat[Double], s: T, t: Array[Double]): Unit
+}
+
+@implicitNotFound(msg = "${O} not found")
 trait MatUnaryOp1Scalar[O, T, Res] {
   def apply(a: Mat[Double], s: T): Res
 }
@@ -57,6 +62,19 @@ trait MatLinalgOps {
       implicit op: MatUnaryOp1Scalar[AtxV, Vec[Double], Vec[Double]])
     : Vec[Double] =
     op(self, other)
+
+  /* DGEMV with preallocated output*/
+  def mvW(other: Vec[Double], target: Array[Double])(
+      implicit op: MatUnaryOp1ScalarTarget[AxV, Vec[Double]]): Vec[Double] = {
+    op(self, other, target)
+    target
+  }
+
+  def tmvW(other: Vec[Double], target: Array[Double])(
+      implicit op: MatUnaryOp1ScalarTarget[AtxV, Vec[Double]]): Vec[Double] = {
+    op(self, other, target)
+    target
+  }
 
   /**
     * Simple DGEMM

@@ -27,8 +27,7 @@ trait OpImpl {
   implicit val ddot =
     new VecBinOp[Vec[Double], Double] {
       def apply(a: Vec[Double], b: Vec[Double]): Double = {
-        assert(a.length == b.length,
-               s"Incorrect dimensions ${a.length} ${b.length}")
+        assert(a.length == b.length)
         assert(a.length > 0)
         BLAS.ddot(a.length, a, 1, b, 1)
 
@@ -38,8 +37,7 @@ trait OpImpl {
   implicit val dgemv =
     new MatUnaryOp1Scalar[AxV, Vec[Double], Vec[Double]] {
       def apply(a: Mat[Double], b: Vec[Double]): Vec[Double] = {
-        assert(a.numCols == b.length,
-               s"Incorrect dimensions ${a.numCols} ${b.length}")
+        assert(a.numCols == b.length)
         assert(a.numCols > 0)
         assert(a.numRows > 0)
         val result = Array.ofDim[Double](a.numRows)
@@ -62,8 +60,7 @@ trait OpImpl {
   implicit val dgemvT =
     new MatUnaryOp1Scalar[AtxV, Vec[Double], Vec[Double]] {
       def apply(a: Mat[Double], b: Vec[Double]): Vec[Double] = {
-        assert(a.numRows == b.length,
-               s"Incorrect dimensions ${a.numRows} ${b.length}")
+        assert(a.numRows == b.length)
         assert(a.numCols > 0)
         assert(a.numRows > 0)
         val result = Array.ofDim[Double](a.numCols)
@@ -80,6 +77,52 @@ trait OpImpl {
                    result,
                    1)
         result
+      }
+    }
+
+  implicit val dgemvTarget =
+    new MatUnaryOp1ScalarTarget[AxV, Vec[Double]] {
+      def apply(a: Mat[Double], b: Vec[Double], result: Array[Double]): Unit = {
+        assert(a.numCols == b.length)
+        assert(a.numCols > 0)
+        assert(a.numRows > 0)
+        assert(result.size == a.numRows)
+
+        BLAS.dgemv("T",
+                   a.numCols,
+                   a.numRows,
+                   1.0,
+                   a.toArray,
+                   a.numCols,
+                   b,
+                   1,
+                   0.0,
+                   result,
+                   1)
+        ()
+      }
+    }
+
+  implicit val dgemvTTarget =
+    new MatUnaryOp1ScalarTarget[AtxV, Vec[Double]] {
+      def apply(a: Mat[Double], b: Vec[Double], result: Array[Double]): Unit = {
+        assert(a.numRows == b.length)
+        assert(a.numCols > 0)
+        assert(a.numRows > 0)
+        assert(result.size == a.numCols)
+
+        BLAS.dgemv("N",
+                   a.numCols,
+                   a.numRows,
+                   1.0,
+                   a.toArray,
+                   a.numCols,
+                   b,
+                   1,
+                   0.0,
+                   result,
+                   1)
+        ()
       }
     }
 
@@ -568,8 +611,7 @@ trait OpImpl {
         assert(b.numRows > 0)
         assert(a.numRows > 0)
         assert(a.numCols > 0)
-        assert(a.numCols == b.numRows,
-               s"Incorrect dimensions ${a.numCols} ${b.numRows}")
+        assert(a.numCols == b.numRows)
 
         val result = Array.ofDim[Double](a.numRows * b.numCols)
 
@@ -627,8 +669,7 @@ trait OpImpl {
   implicit val mult2 =
     new MatBinOp[AtxB, Mat[Double]] {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
-        assert(a.numRows == b.numRows,
-               s"Incorrect dimensions ${a.numRows} ${b.numRows}")
+        assert(a.numRows == b.numRows)
         assert(b.numCols > 0)
         assert(b.numRows > 0)
         assert(a.numRows > 0)
@@ -660,8 +701,7 @@ trait OpImpl {
                 c: Mat[Double],
                 alpha: Double,
                 beta: Double): Mat[Double] = {
-        assert(a.numRows == b.numRows,
-               s"Incorrect dimensions ${a.numRows} ${b.numRows}")
+        assert(a.numRows == b.numRows)
         assert(c.numRows == a.numCols && c.numCols == b.numCols)
         assert(b.numCols > 0)
         assert(b.numRows > 0)
@@ -747,8 +787,7 @@ trait OpImpl {
   implicit val mult3 =
     new MatBinOp[AxBt, Mat[Double]] {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
-        assert(a.numCols == b.numCols,
-               s"Incorrect dimensions ${a.numCols} ${b.numCols}")
+        assert(a.numCols == b.numCols)
 
         assert(b.numCols > 0)
         assert(b.numRows > 0)
@@ -807,8 +846,7 @@ trait OpImpl {
                 c: Mat[Double],
                 alpha: Double,
                 beta: Double): Mat[Double] = {
-        assert(a.numCols == b.numCols,
-               s"Incorrect dimensions ${a.numCols} ${b.numCols}")
+        assert(a.numCols == b.numCols)
         assert(c.numRows == a.numRows && c.numCols == b.numRows)
         assert(b.numCols > 0)
         assert(b.numRows > 0)
@@ -867,8 +905,7 @@ trait OpImpl {
   implicit val mult4 =
     new MatBinOp[AtxBt, Mat[Double]] {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
-        assert(a.numRows == b.numCols,
-               s"Incorrect dimensions ${a.numRows} ${b.numCols}")
+        assert(a.numRows == b.numCols)
 
         assert(b.numCols > 0)
         assert(b.numRows > 0)
@@ -901,8 +938,7 @@ trait OpImpl {
                 c: Mat[Double],
                 alpha: Double,
                 beta: Double): Mat[Double] = {
-        assert(a.numRows == b.numCols,
-               s"Incorrect dimensions ${a.numRows} ${b.numCols}")
+        assert(a.numRows == b.numCols)
         assert(c.numRows == a.numCols && c.numCols == b.numRows)
         assert(b.numCols > 0)
         assert(b.numRows > 0)
@@ -930,7 +966,7 @@ trait OpImpl {
   implicit val trace =
     new MatUnaryOp[Trace, Double] {
       def apply(a: Mat[Double]): Double = {
-        assert(a.numRows == a.numCols, "Trace of rectangular matrix")
+        assert(a.numRows == a.numCols)
         assert(a.numRows > 0)
         var s = 0.0
         var i = 0
