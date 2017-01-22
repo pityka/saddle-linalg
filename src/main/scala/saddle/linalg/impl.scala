@@ -29,7 +29,7 @@ trait OpImpl {
       def apply(a: Vec[Double], b: Vec[Double]): Double = {
         assert(a.length == b.length,
                s"Incorrect dimensions ${a.length} ${b.length}")
-
+        assert(a.length > 0)
         BLAS.ddot(a.length, a, 1, b, 1)
 
       }
@@ -40,7 +40,8 @@ trait OpImpl {
       def apply(a: Mat[Double], b: Vec[Double]): Vec[Double] = {
         assert(a.numCols == b.length,
                s"Incorrect dimensions ${a.numCols} ${b.length}")
-
+        assert(a.numCols > 0)
+        assert(a.numRows > 0)
         val result = Array.ofDim[Double](a.numRows)
 
         BLAS.dgemv("T",
@@ -63,7 +64,8 @@ trait OpImpl {
       def apply(a: Mat[Double], b: Vec[Double]): Vec[Double] = {
         assert(a.numRows == b.length,
                s"Incorrect dimensions ${a.numRows} ${b.length}")
-
+        assert(a.numCols > 0)
+        assert(a.numRows > 0)
         val result = Array.ofDim[Double](a.numCols)
 
         BLAS.dgemv("N",
@@ -85,6 +87,8 @@ trait OpImpl {
     new MatUnaryOp1Scalar[EigValSymTrunc, Int, Vec[Double]] {
       def apply(m: Mat[Double], k: Int): Vec[Double] = {
         assert(m.numRows == m.numCols)
+        assert(m.numCols > 0)
+        assert(m.numRows > 0)
         val K = math.min(m.numRows, k)
         val a = m.contents.clone
 
@@ -154,6 +158,8 @@ trait OpImpl {
     new MatUnaryOp1Scalar[EigSTrunc, Int, EigenDecompositionSymmetric] {
       def apply(m: Mat[Double], k: Int): EigenDecompositionSymmetric = {
         assert(m.numRows == m.numCols)
+        assert(m.numCols > 0)
+        assert(m.numRows > 0)
         val K = math.min(m.numRows, k)
         val a = m.contents.clone
 
@@ -226,6 +232,8 @@ trait OpImpl {
     new MatUnaryOp[EigS, EigenDecompositionSymmetric] {
       def apply(m: Mat[Double]): EigenDecompositionSymmetric = {
         assert(m.numRows == m.numCols)
+        assert(m.numCols > 0)
+        assert(m.numRows > 0)
         val a = m.contents.clone
 
         val wr = Array.ofDim[Double](m.numRows)
@@ -257,6 +265,8 @@ trait OpImpl {
     new MatUnaryOp[EigNS, EigenDecompositionNonSymmetric] {
       def apply(m: Mat[Double]): EigenDecompositionNonSymmetric = {
         assert(m.numRows == m.numCols)
+        assert(m.numCols > 0)
+        assert(m.numRows > 0)
         val a = m.contents.clone
 
         val vl = Array.ofDim[Double](m.numRows * m.numRows)
@@ -395,6 +405,8 @@ trait OpImpl {
 
   implicit def svd = new MatUnaryOp[GeneralSVD, SVDResult] {
     def apply(m: Mat[Double]): SVDResult = {
+      assert(m.numCols > 0)
+      assert(m.numRows > 0)
 
       /** Lapack gives us the SVD of the transpose
         * t(a) = v t(s) t(u)
@@ -462,7 +474,8 @@ trait OpImpl {
 
   implicit def invertGeneralLU = new MatUnaryOp[InvertWithLU, Mat[Double]] {
     def apply(m: Mat[Double]): Mat[Double] = {
-
+      assert(m.numCols > 0)
+      assert(m.numRows > 0)
       val marray = m.contents
       val array = marray.clone
 
@@ -505,7 +518,8 @@ trait OpImpl {
   implicit def invertPD =
     new MatUnaryOp[InvertPDCholesky, Option[Mat[Double]]] {
       def apply(m: Mat[Double]): Option[Mat[Double]] = {
-
+        assert(m.numCols > 0)
+        assert(m.numRows > 0)
         val marray = m.contents
         val array = marray.clone
         val info = new org.netlib.util.intW(0)
@@ -547,9 +561,13 @@ trait OpImpl {
       }
     }
 
-  implicit def mult1 =
+  implicit val mult1 =
     new MatBinOp[AxB, Mat[Double]] {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
         assert(a.numCols == b.numRows,
                s"Incorrect dimensions ${a.numCols} ${b.numRows}")
 
@@ -582,6 +600,10 @@ trait OpImpl {
         assert(a.numCols == b.numRows,
                s"Incorrect dimensions ${a.numCols} ${b.numRows}")
         assert(c.numRows == a.numRows && c.numCols == b.numCols)
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
 
         val result = c.contents.clone
 
@@ -607,6 +629,10 @@ trait OpImpl {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
         assert(a.numRows == b.numRows,
                s"Incorrect dimensions ${a.numRows} ${b.numRows}")
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
 
         val result = Array.ofDim[Double](a.numCols * b.numCols)
 
@@ -637,6 +663,10 @@ trait OpImpl {
         assert(a.numRows == b.numRows,
                s"Incorrect dimensions ${a.numRows} ${b.numRows}")
         assert(c.numRows == a.numCols && c.numCols == b.numCols)
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
 
         val result = c.contents.clone
 
@@ -662,6 +692,8 @@ trait OpImpl {
       def apply(a: Mat[Double]): Mat[Double] = {
 
         val result = Array.ofDim[Double](a.numCols * a.numCols)
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
 
         BLAS.dgemm("N", // op a
                    "T", // op b
@@ -688,6 +720,11 @@ trait OpImpl {
                 beta: Double): Mat[Double] = {
         assert(c.numRows == a.numCols && c.numCols == a.numCols)
 
+        assert(c.numCols > 0)
+        assert(c.numRows > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
+
         val result = c.contents.clone
 
         BLAS.dgemm("N", // op a
@@ -713,6 +750,11 @@ trait OpImpl {
         assert(a.numCols == b.numCols,
                s"Incorrect dimensions ${a.numCols} ${b.numCols}")
 
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
+
         val result = Array.ofDim[Double](a.numRows * b.numRows)
 
         BLAS.dgemm("T",
@@ -735,6 +777,9 @@ trait OpImpl {
   implicit def mult3self =
     new MatUnaryOp[AxAt, Mat[Double]] {
       def apply(a: Mat[Double]): Mat[Double] = {
+
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
 
         val result = Array.ofDim[Double](a.numRows * a.numRows)
 
@@ -765,6 +810,10 @@ trait OpImpl {
         assert(a.numCols == b.numCols,
                s"Incorrect dimensions ${a.numCols} ${b.numCols}")
         assert(c.numRows == a.numRows && c.numCols == b.numRows)
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
 
         val result = c.contents.clone
 
@@ -793,6 +842,9 @@ trait OpImpl {
                 beta: Double): Mat[Double] = {
         assert(c.numRows == a.numRows && c.numCols == a.numRows)
 
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
+
         val result = c.contents.clone
 
         BLAS.dgemm("T",
@@ -817,6 +869,11 @@ trait OpImpl {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
         assert(a.numRows == b.numCols,
                s"Incorrect dimensions ${a.numRows} ${b.numCols}")
+
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
 
         val result = Array.ofDim[Double](a.numCols * b.numRows)
 
@@ -847,6 +904,10 @@ trait OpImpl {
         assert(a.numRows == b.numCols,
                s"Incorrect dimensions ${a.numRows} ${b.numCols}")
         assert(c.numRows == a.numCols && c.numCols == b.numRows)
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols > 0)
         val result = c.contents.clone
 
         BLAS.dgemm("T", // op a
@@ -870,6 +931,7 @@ trait OpImpl {
     new MatUnaryOp[Trace, Double] {
       def apply(a: Mat[Double]): Double = {
         assert(a.numRows == a.numCols, "Trace of rectangular matrix")
+        assert(a.numRows > 0)
         var s = 0.0
         var i = 0
         val d = a.contents
@@ -897,7 +959,8 @@ trait OpImpl {
 
   implicit def ispd = new MatUnaryOp[TestPD, Boolean] {
     def apply(m: Mat[Double]): Boolean = {
-
+      assert(m.numCols > 0)
+      assert(m.numRows > 0)
       val marray = m.contents
       val array = marray.clone
       val info = new org.netlib.util.intW(0)
@@ -909,6 +972,8 @@ trait OpImpl {
   implicit def svdtrunc =
     new MatUnaryOp1Scalar[GeneralSVDTrunc, Int, SVDResult] {
       def apply(m: Mat[Double], k: Int): SVDResult = {
+        assert(m.numCols > 0)
+        assert(m.numRows > 0)
         val K = math.min(k, math.min(m.numRows, m.numCols))
 
         if (m.numRows <= m.numCols) {
@@ -941,6 +1006,8 @@ trait OpImpl {
   implicit def singularValues =
     new MatUnaryOp1Scalar[SingularValues, Int, Vec[Double]] {
       def apply(m: Mat[Double], k: Int): Vec[Double] = {
+        assert(m.numCols > 0)
+        assert(m.numRows > 0)
         val K = math.min(k, math.min(m.numRows, m.numCols))
 
         if (m.numRows <= m.numCols) {
