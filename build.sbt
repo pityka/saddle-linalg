@@ -1,10 +1,12 @@
-scalaVersion := "2.11.8"
+
+
+crossScalaVersions := Seq("2.11.8")
 
 name := "saddle-linalg"
 
 organization := "io.github.pityka"
 
-version := "0.0.17"
+version := "0.0.21"
 
 libraryDependencies ++= Seq(
   "io.github.pityka" %% "saddle-core" % "1.3.4-fork1-SNAPSHOT",
@@ -13,7 +15,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 )
 
-reformatOnCompileSettings
+scalaVersion := "2.12.1"
 
 pomExtra in Global := {
   <url>https://pityka.github.io/saddle-linalg</url>

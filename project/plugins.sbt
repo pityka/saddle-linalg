@@ -1,4 +1,4 @@
-addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "0.4.1")
+addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "0.5.2")
 
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "1.1")
 
