@@ -24,7 +24,7 @@ trait OpImpl {
 
   lazy val LAPACK = com.github.fommil.netlib.LAPACK.getInstance
 
-  implicit def ddot =
+  implicit val ddot =
     new VecBinOp[Vec[Double], Double] {
       def apply(a: Vec[Double], b: Vec[Double]): Double = {
         assert(a.length == b.length,
@@ -35,7 +35,7 @@ trait OpImpl {
       }
     }
 
-  implicit def dgemv =
+  implicit val dgemv =
     new MatUnaryOp1Scalar[AxV, Vec[Double], Vec[Double]] {
       def apply(a: Mat[Double], b: Vec[Double]): Vec[Double] = {
         assert(a.numCols == b.length,
@@ -59,7 +59,7 @@ trait OpImpl {
       }
     }
 
-  implicit def dgemvT =
+  implicit val dgemvT =
     new MatUnaryOp1Scalar[AtxV, Vec[Double], Vec[Double]] {
       def apply(a: Mat[Double], b: Vec[Double]): Vec[Double] = {
         assert(a.numRows == b.length,
@@ -83,7 +83,7 @@ trait OpImpl {
       }
     }
 
-  implicit def symmEigenValueTrunc =
+  implicit val symmEigenValueTrunc =
     new MatUnaryOp1Scalar[EigValSymTrunc, Int, Vec[Double]] {
       def apply(m: Mat[Double], k: Int): Vec[Double] = {
         assert(m.numRows == m.numCols)
@@ -154,7 +154,7 @@ trait OpImpl {
       }
     }
 
-  implicit def symmEigenTrunc =
+  implicit val symmEigenTrunc =
     new MatUnaryOp1Scalar[EigSTrunc, Int, EigenDecompositionSymmetric] {
       def apply(m: Mat[Double], k: Int): EigenDecompositionSymmetric = {
         assert(m.numRows == m.numCols)
@@ -228,7 +228,7 @@ trait OpImpl {
       }
     }
 
-  implicit def symmEigen =
+  implicit val symmEigen =
     new MatUnaryOp[EigS, EigenDecompositionSymmetric] {
       def apply(m: Mat[Double]): EigenDecompositionSymmetric = {
         assert(m.numRows == m.numCols)
@@ -261,7 +261,7 @@ trait OpImpl {
       }
     }
 
-  implicit def nonsymmEigen =
+  implicit val nonsymmEigen =
     new MatUnaryOp[EigNS, EigenDecompositionNonSymmetric] {
       def apply(m: Mat[Double]): EigenDecompositionNonSymmetric = {
         assert(m.numRows == m.numCols)
@@ -321,7 +321,7 @@ trait OpImpl {
       }
     }
 
-  // implicit def svdtrunc =
+  // implicit val svdtrunc =
   //   new MatUnaryOp1Scalar[GeneralSVDTrunc, Int, SVDResult] {
   //     def apply(m: Mat[Double], k: Int): SVDResult = {
   //       val K = math.min(k, math.min(m.numRows, m.numCols))
@@ -403,7 +403,7 @@ trait OpImpl {
   //     }
   //   }
 
-  implicit def svd = new MatUnaryOp[GeneralSVD, SVDResult] {
+  implicit val svd = new MatUnaryOp[GeneralSVD, SVDResult] {
     def apply(m: Mat[Double]): SVDResult = {
       assert(m.numCols > 0)
       assert(m.numRows > 0)
@@ -472,7 +472,7 @@ trait OpImpl {
     }
   }
 
-  implicit def invertGeneralLU = new MatUnaryOp[InvertWithLU, Mat[Double]] {
+  implicit val invertGeneralLU = new MatUnaryOp[InvertWithLU, Mat[Double]] {
     def apply(m: Mat[Double]): Mat[Double] = {
       assert(m.numCols > 0)
       assert(m.numRows > 0)
@@ -515,7 +515,7 @@ trait OpImpl {
   // private val lapackInfoMethod =
   //   java.lang.Class.forName("org.netlib.util.intW").getField("val")
 
-  implicit def invertPD =
+  implicit val invertPD =
     new MatUnaryOp[InvertPDCholesky, Option[Mat[Double]]] {
       def apply(m: Mat[Double]): Option[Mat[Double]] = {
         assert(m.numCols > 0)
@@ -590,7 +590,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult1c =
+  implicit val mult1c =
     new MatGemmOp[aAxBpbC, Mat[Double]] {
       def apply(a: Mat[Double],
                 b: Mat[Double],
@@ -624,7 +624,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult2 =
+  implicit val mult2 =
     new MatBinOp[AtxB, Mat[Double]] {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
         assert(a.numRows == b.numRows,
@@ -653,7 +653,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult2c =
+  implicit val mult2c =
     new MatGemmOp[aAtxBpbC, Mat[Double]] {
       def apply(a: Mat[Double],
                 b: Mat[Double],
@@ -687,7 +687,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult2self =
+  implicit val mult2self =
     new MatUnaryOp[AtxA, Mat[Double]] {
       def apply(a: Mat[Double]): Mat[Double] = {
 
@@ -712,7 +712,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult2cself =
+  implicit val mult2cself =
     new MatGemmSelfOp[aAtxApbC, Mat[Double]] {
       def apply(a: Mat[Double],
                 c: Mat[Double],
@@ -744,7 +744,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult3 =
+  implicit val mult3 =
     new MatBinOp[AxBt, Mat[Double]] {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
         assert(a.numCols == b.numCols,
@@ -774,7 +774,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult3self =
+  implicit val mult3self =
     new MatUnaryOp[AxAt, Mat[Double]] {
       def apply(a: Mat[Double]): Mat[Double] = {
 
@@ -800,7 +800,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult3c =
+  implicit val mult3c =
     new MatGemmOp[aAxBtpbC, Mat[Double]] {
       def apply(a: Mat[Double],
                 b: Mat[Double],
@@ -834,7 +834,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult3selfplus =
+  implicit val mult3selfplus =
     new MatGemmSelfOp[aAxAtpbC, Mat[Double]] {
       def apply(a: Mat[Double],
                 c: Mat[Double],
@@ -864,7 +864,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult4 =
+  implicit val mult4 =
     new MatBinOp[AtxBt, Mat[Double]] {
       def apply(a: Mat[Double], b: Mat[Double]): Mat[Double] = {
         assert(a.numRows == b.numCols,
@@ -894,7 +894,7 @@ trait OpImpl {
       }
     }
 
-  implicit def mult4c =
+  implicit val mult4c =
     new MatGemmOp[aAtxBtpbC, Mat[Double]] {
       def apply(a: Mat[Double],
                 b: Mat[Double],
@@ -927,7 +927,7 @@ trait OpImpl {
       }
     }
 
-  implicit def trace =
+  implicit val trace =
     new MatUnaryOp[Trace, Double] {
       def apply(a: Mat[Double]): Double = {
         assert(a.numRows == a.numCols, "Trace of rectangular matrix")
@@ -943,7 +943,7 @@ trait OpImpl {
       }
     }
 
-  implicit def diag =
+  implicit val diag =
     new MatUnaryOp[Diag, Vec[Double]] {
       def apply(a: Mat[Double]): Vec[Double] = {
         val b = Array.ofDim[Double](math.min(a.numRows, a.numCols))
@@ -957,7 +957,7 @@ trait OpImpl {
       }
     }
 
-  implicit def ispd = new MatUnaryOp[TestPD, Boolean] {
+  implicit val ispd = new MatUnaryOp[TestPD, Boolean] {
     def apply(m: Mat[Double]): Boolean = {
       assert(m.numCols > 0)
       assert(m.numRows > 0)
@@ -969,7 +969,7 @@ trait OpImpl {
     }
   }
 
-  implicit def svdtrunc =
+  implicit val svdtrunc =
     new MatUnaryOp1Scalar[GeneralSVDTrunc, Int, SVDResult] {
       def apply(m: Mat[Double], k: Int): SVDResult = {
         assert(m.numCols > 0)
@@ -1003,7 +1003,7 @@ trait OpImpl {
       }
     }
 
-  implicit def singularValues =
+  implicit val singularValues =
     new MatUnaryOp1Scalar[SingularValues, Int, Vec[Double]] {
       def apply(m: Mat[Double], k: Int): Vec[Double] = {
         assert(m.numCols > 0)
@@ -1022,7 +1022,7 @@ trait OpImpl {
     }
 
   /* D * M */
-  implicit def multDiagFromLeft =
+  implicit val multDiagFromLeft =
     new MatUnaryOp1Scalar[DiagxA, Vec[Double], Mat[Double]] {
       def apply(a: Mat[Double], b: Vec[Double]): Mat[Double] = {
         // assert(a.numRows == b.numCols,
@@ -1049,7 +1049,7 @@ trait OpImpl {
     }
 
   /* M * D */
-  implicit def multDiagFromRight =
+  implicit val multDiagFromRight =
     new MatUnaryOp1Scalar[AxDiag, Vec[Double], Mat[Double]] {
       def apply(a: Mat[Double], b: Vec[Double]): Mat[Double] = {
 
