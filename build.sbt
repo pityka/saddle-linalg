@@ -1,21 +1,21 @@
 
 
-crossScalaVersions := Seq("2.11.8")
+// crossScalaVersions := Seq("2.12.1")
 
 name := "saddle-linalg"
 
 organization := "io.github.pityka"
 
-version := "0.0.21"
+version := "0.0.22"
 
 libraryDependencies ++= Seq(
-  "io.github.pityka" %% "saddle-core" % "1.3.4-fork1-SNAPSHOT",
+  "io.github.pityka" %% "saddle-core-fork" % "1.3.4-fork1",
   "com.github.fommil.netlib" % "all" % "1.1.2" pomOnly (),
   "net.sourceforge.f2j" % "arpack_combined_all" % "0.1",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 )
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.11.8"
 
 pomExtra in Global := {
   <url>https://pityka.github.io/saddle-linalg</url>
