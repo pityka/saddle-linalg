@@ -151,8 +151,7 @@ trait MatLinalgOps {
   def isPositiveDefinite(implicit op: MatUnaryOp[TestPD, Boolean]): Boolean =
     op(self)
 
-  def eigNonSymm(
-      implicit op: MatUnaryOp[EigNS, EigenDecompositionNonSymmetric])
+  def eigNonSymm(implicit op: MatUnaryOp[EigNS, EigenDecompositionNonSymmetric])
     : EigenDecompositionNonSymmetric =
     op(self)
 

@@ -615,19 +615,21 @@ trait OpImpl {
 
         val result = Array.ofDim[Double](a.numRows * b.numCols)
 
-        BLAS.dgemm("N",
-                   "N",
-                   b.numCols, // M
-                   a.numRows, // N
-                   b.numRows, // K
-                   1.0, // alpha
-                   b.toArray, // op(a) data
-                   b.numCols, // lda
-                   a.toArray, // op(b) data
-                   b.numRows, //ldb
-                   0.0, // c
-                   result, // c data
-                   b.numCols) // ldc
+        BLAS.dgemm(
+          "N",
+          "N",
+          b.numCols, // M
+          a.numRows, // N
+          b.numRows, // K
+          1.0, // alpha
+          b.toArray, // op(a) data
+          b.numCols, // lda
+          a.toArray, // op(b) data
+          b.numRows, //ldb
+          0.0, // c
+          result, // c data
+          b.numCols
+        ) // ldc
         new mat.MatDouble(a.numRows, b.numCols, result)
       }
     }
@@ -649,19 +651,21 @@ trait OpImpl {
 
         val result = c.toArray.clone
 
-        BLAS.dgemm("N",
-                   "N",
-                   b.numCols, // M
-                   a.numRows, // N
-                   b.numRows, // K
-                   alpha, // alpha
-                   b.toArray, // op(a) data
-                   b.numCols, // lda
-                   a.toArray, // op(b) data
-                   b.numRows, //ldb
-                   beta, // c
-                   result, // c data
-                   b.numCols) // ldc
+        BLAS.dgemm(
+          "N",
+          "N",
+          b.numCols, // M
+          a.numRows, // N
+          b.numRows, // K
+          alpha, // alpha
+          b.toArray, // op(a) data
+          b.numCols, // lda
+          a.toArray, // op(b) data
+          b.numRows, //ldb
+          beta, // c
+          result, // c data
+          b.numCols
+        ) // ldc
         new mat.MatDouble(a.numRows, b.numCols, result)
       }
     }
@@ -677,19 +681,21 @@ trait OpImpl {
 
         val result = Array.ofDim[Double](a.numCols * b.numCols)
 
-        BLAS.dgemm("N", // op a
-                   "T", // op b
-                   b.numCols, // M rows of op(a)
-                   a.numCols, // N cols of op(b)
-                   b.numRows, // K cols of op(a)
-                   1.0, // alpha
-                   b.toArray, // op(a) data
-                   b.numCols, // lda
-                   a.toArray, // op(b) data
-                   a.numCols, //ldb
-                   0.0, // c
-                   result, // c data
-                   b.numCols) // ldc
+        BLAS.dgemm(
+          "N", // op a
+          "T", // op b
+          b.numCols, // M rows of op(a)
+          a.numCols, // N cols of op(b)
+          b.numRows, // K cols of op(a)
+          1.0, // alpha
+          b.toArray, // op(a) data
+          b.numCols, // lda
+          a.toArray, // op(b) data
+          a.numCols, //ldb
+          0.0, // c
+          result, // c data
+          b.numCols
+        ) // ldc
         new mat.MatDouble(a.numCols, b.numCols, result)
       }
     }
@@ -710,19 +716,21 @@ trait OpImpl {
 
         val result = c.toArray.clone
 
-        BLAS.dgemm("N", // op a
-                   "T", // op b
-                   b.numCols, // M rows of op(a)
-                   a.numCols, // N cols of op(b)
-                   b.numRows, // K cols of op(a)
-                   alpha, // alpha
-                   b.toArray, // op(a) data
-                   b.numCols, // lda
-                   a.toArray, // op(b) data
-                   a.numCols, //ldb
-                   beta, // c
-                   result, // c data
-                   b.numCols) // ldc
+        BLAS.dgemm(
+          "N", // op a
+          "T", // op b
+          b.numCols, // M rows of op(a)
+          a.numCols, // N cols of op(b)
+          b.numRows, // K cols of op(a)
+          alpha, // alpha
+          b.toArray, // op(a) data
+          b.numCols, // lda
+          a.toArray, // op(b) data
+          a.numCols, //ldb
+          beta, // c
+          result, // c data
+          b.numCols
+        ) // ldc
         new mat.MatDouble(a.numCols, b.numCols, result)
       }
     }
@@ -735,19 +743,21 @@ trait OpImpl {
         assert(a.numRows > 0)
         assert(a.numCols > 0)
 
-        BLAS.dgemm("N", // op a
-                   "T", // op b
-                   a.numCols, // M rows of op(a)
-                   a.numCols, // N cols of op(b)
-                   a.numRows, // K cols of op(a)
-                   1.0, // alpha
-                   a.toArray, // op(a) data
-                   a.numCols, // lda
-                   a.toArray, // op(b) data
-                   a.numCols, //ldb
-                   0.0, // c
-                   result, // c data
-                   a.numCols) // ldc
+        BLAS.dgemm(
+          "N", // op a
+          "T", // op b
+          a.numCols, // M rows of op(a)
+          a.numCols, // N cols of op(b)
+          a.numRows, // K cols of op(a)
+          1.0, // alpha
+          a.toArray, // op(a) data
+          a.numCols, // lda
+          a.toArray, // op(b) data
+          a.numCols, //ldb
+          0.0, // c
+          result, // c data
+          a.numCols
+        ) // ldc
         new mat.MatDouble(a.numCols, a.numCols, result)
       }
     }
@@ -767,19 +777,21 @@ trait OpImpl {
 
         val result = c.toArray.clone
 
-        BLAS.dgemm("N", // op a
-                   "T", // op b
-                   a.numCols, // M rows of op(a)
-                   a.numCols, // N cols of op(b)
-                   a.numRows, // K cols of op(a)
-                   alpha, // alpha
-                   a.toArray, // op(a) data
-                   a.numCols, // lda
-                   a.toArray, // op(b) data
-                   a.numCols, //ldb
-                   beta, // c
-                   result, // c data
-                   a.numCols) // ldc
+        BLAS.dgemm(
+          "N", // op a
+          "T", // op b
+          a.numCols, // M rows of op(a)
+          a.numCols, // N cols of op(b)
+          a.numRows, // K cols of op(a)
+          alpha, // alpha
+          a.toArray, // op(a) data
+          a.numCols, // lda
+          a.toArray, // op(b) data
+          a.numCols, //ldb
+          beta, // c
+          result, // c data
+          a.numCols
+        ) // ldc
         new mat.MatDouble(a.numCols, a.numCols, result)
       }
     }
@@ -796,19 +808,21 @@ trait OpImpl {
 
         val result = Array.ofDim[Double](a.numRows * b.numRows)
 
-        BLAS.dgemm("T",
-                   "N",
-                   b.numRows, // M
-                   a.numRows, // N
-                   b.numCols, // K
-                   1.0, // alpha
-                   b.toArray, // op(a) data
-                   b.numCols, // lda
-                   a.toArray, // op(b) data
-                   b.numCols, //ldb
-                   0.0, // c
-                   result, // c data
-                   b.numRows) // ldc
+        BLAS.dgemm(
+          "T",
+          "N",
+          b.numRows, // M
+          a.numRows, // N
+          b.numCols, // K
+          1.0, // alpha
+          b.toArray, // op(a) data
+          b.numCols, // lda
+          a.toArray, // op(b) data
+          b.numCols, //ldb
+          0.0, // c
+          result, // c data
+          b.numRows
+        ) // ldc
         new mat.MatDouble(a.numRows, b.numRows, result)
       }
     }
@@ -822,19 +836,21 @@ trait OpImpl {
 
         val result = Array.ofDim[Double](a.numRows * a.numRows)
 
-        BLAS.dgemm("T",
-                   "N",
-                   a.numRows, // M
-                   a.numRows, // N
-                   a.numCols, // K
-                   1.0, // alpha
-                   a.toArray, // op(a) data
-                   a.numCols, // lda
-                   a.toArray, // op(b) data
-                   a.numCols, //ldb
-                   0.0, // c
-                   result, // c data
-                   a.numRows) // ldc
+        BLAS.dgemm(
+          "T",
+          "N",
+          a.numRows, // M
+          a.numRows, // N
+          a.numCols, // K
+          1.0, // alpha
+          a.toArray, // op(a) data
+          a.numCols, // lda
+          a.toArray, // op(b) data
+          a.numCols, //ldb
+          0.0, // c
+          result, // c data
+          a.numRows
+        ) // ldc
         new mat.MatDouble(a.numRows, a.numRows, result)
       }
     }
@@ -855,19 +871,21 @@ trait OpImpl {
 
         val result = c.toArray.clone
 
-        BLAS.dgemm("T",
-                   "N",
-                   b.numRows, // M
-                   a.numRows, // N
-                   b.numCols, // K
-                   alpha, // alpha
-                   b.toArray, // op(a) data
-                   b.numCols, // lda
-                   a.toArray, // op(b) data
-                   b.numCols, //ldb
-                   beta, // c
-                   result, // c data
-                   b.numRows) // ldc
+        BLAS.dgemm(
+          "T",
+          "N",
+          b.numRows, // M
+          a.numRows, // N
+          b.numCols, // K
+          alpha, // alpha
+          b.toArray, // op(a) data
+          b.numCols, // lda
+          a.toArray, // op(b) data
+          b.numCols, //ldb
+          beta, // c
+          result, // c data
+          b.numRows
+        ) // ldc
         new mat.MatDouble(a.numRows, b.numRows, result)
       }
     }
@@ -885,19 +903,21 @@ trait OpImpl {
 
         val result = c.toArray.clone
 
-        BLAS.dgemm("T",
-                   "N",
-                   a.numRows, // M
-                   a.numRows, // N
-                   a.numCols, // K
-                   alpha, // alpha
-                   a.toArray, // op(a) data
-                   a.numCols, // lda
-                   a.toArray, // op(b) data
-                   a.numCols, //ldb
-                   beta, // c
-                   result, // c data
-                   a.numRows) // ldc
+        BLAS.dgemm(
+          "T",
+          "N",
+          a.numRows, // M
+          a.numRows, // N
+          a.numCols, // K
+          alpha, // alpha
+          a.toArray, // op(a) data
+          a.numCols, // lda
+          a.toArray, // op(b) data
+          a.numCols, //ldb
+          beta, // c
+          result, // c data
+          a.numRows
+        ) // ldc
         new mat.MatDouble(a.numRows, a.numRows, result)
       }
     }
@@ -914,19 +934,21 @@ trait OpImpl {
 
         val result = Array.ofDim[Double](a.numCols * b.numRows)
 
-        BLAS.dgemm("T", // op a
-                   "T", // op b
-                   b.numRows, // M rows of op(a)
-                   a.numCols, // N cols of op(b)
-                   b.numCols, // K cols of op(a)
-                   1.0, // alpha
-                   b.toArray, // op(a) data
-                   b.numCols, // lda
-                   a.toArray, // op(b) data
-                   a.numCols, //ldb
-                   0.0, // c
-                   result, // c data
-                   b.numRows) // ldc
+        BLAS.dgemm(
+          "T", // op a
+          "T", // op b
+          b.numRows, // M rows of op(a)
+          a.numCols, // N cols of op(b)
+          b.numCols, // K cols of op(a)
+          1.0, // alpha
+          b.toArray, // op(a) data
+          b.numCols, // lda
+          a.toArray, // op(b) data
+          a.numCols, //ldb
+          0.0, // c
+          result, // c data
+          b.numRows
+        ) // ldc
         new mat.MatDouble(a.numCols, b.numRows, result)
       }
     }
@@ -946,19 +968,21 @@ trait OpImpl {
         assert(a.numCols > 0)
         val result = c.toArray.clone
 
-        BLAS.dgemm("T", // op a
-                   "T", // op b
-                   b.numRows, // M rows of op(a)
-                   a.numCols, // N cols of op(b)
-                   b.numCols, // K cols of op(a)
-                   alpha, // alpha
-                   b.toArray, // op(a) data
-                   b.numCols, // lda
-                   a.toArray, // op(b) data
-                   a.numCols, //ldb
-                   beta, // c
-                   result, // c data
-                   b.numRows) // ldc
+        BLAS.dgemm(
+          "T", // op a
+          "T", // op b
+          b.numRows, // M rows of op(a)
+          a.numCols, // N cols of op(b)
+          b.numCols, // K cols of op(a)
+          alpha, // alpha
+          b.toArray, // op(a) data
+          b.numCols, // lda
+          a.toArray, // op(b) data
+          a.numCols, //ldb
+          beta, // c
+          result, // c data
+          b.numRows
+        ) // ldc
         new mat.MatDouble(a.numCols, b.numRows, result)
       }
     }
