@@ -2,7 +2,7 @@ name := "saddle-linalg"
 
 organization := "io.github.pityka"
 
-version := "0.0.23"
+version := "0.0.24-SNAPSHOT"
 
 libraryDependencies ++= Seq(
   "io.github.pityka" %% "saddle-core-fork" % "1.3.4-fork1",
