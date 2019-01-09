@@ -11,11 +11,13 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 )
 
-scalaVersion := "2.11.11"
+scalaVersion := "2.12.8"
 
-crossScalaVersions := Seq("2.12.4", "2.11.11")
+crossScalaVersions := Seq()
 
 scalafmtOnCompile in ThisBuild := true
+
+publishTo := sonatypePublishTo.value
 
 pomExtra in Global := {
   <url>https://pityka.github.io/saddle-linalg</url>
