@@ -41,9 +41,19 @@ trait EigNSTrunc
 trait EigValSymTrunc
 
 trait GeneralSolve
+trait DiagXAInverseXt
 
 trait DiagxA
 trait AxDiag
+
+trait DiagAtxA
+trait DiagAxAt
+
+trait Cholesky
+trait SolveLowerTriangular
+
+trait RowSums
+trait ColSums
 
 // from lapack:
 // inverse of A'A from A (QR) (http://scicomp.stackexchange.com/questions/3188/dealing-with-the-inverse-of-a-positive-definite-symmetric-covariance-matrix)

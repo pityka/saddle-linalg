@@ -555,9 +555,6 @@ trait OpImpl {
     }
   }
 
-  // private val lapackInfoMethod =
-  //   java.lang.Class.forName("org.netlib.util.intW").getField("val")
-
   implicit val invertPD =
     new MatUnaryOp[InvertPDCholesky, Option[Mat[Double]]] {
       def apply(m: Mat[Double]): Option[Mat[Double]] = {
@@ -599,6 +596,237 @@ trait OpImpl {
                     |value
                     |> 0:  if INFO = i, the (i,i) element of the factor U
                     |or L is zero, and the inverse could not be computed.""".stripMargin + ", matrix: " + m.toString)
+        }
+
+      }
+    }
+
+  implicit val rowSums =
+    new MatUnaryOp[RowSums, Vec[Double]] {
+      def apply(x: Mat[Double]): Vec[Double] = {
+        assert(x.numCols > 0)
+        assert(x.numRows > 0)
+
+        val output = Array.ofDim[Double](x.numRows)
+        var i = 0
+        var j = 0
+        while (i < x.numRows) {
+          while (j < x.numCols) {
+            val v = x.raw(i, j)
+            output(i) += v
+            j += 1
+          }
+          j = 0
+          i += 1
+        }
+
+        output
+
+      }
+    }
+
+  implicit val diagAxAt =
+    new MatUnaryOp[DiagAxAt, Vec[Double]] {
+      def apply(x: Mat[Double]): Vec[Double] = {
+        assert(x.numCols > 0)
+        assert(x.numRows > 0)
+
+        /* diag(AA') = rowSums(A * A elementwise) */
+        val output = Array.ofDim[Double](x.numRows)
+        var i = 0
+        var j = 0
+        while (i < x.numRows) {
+          while (j < x.numCols) {
+            val v = x.raw(i, j)
+            output(i) += v * v
+            j += 1
+          }
+          j = 0
+          i += 1
+        }
+
+        output
+
+      }
+    }
+
+  implicit val diagAtxA =
+    new MatUnaryOp[DiagAtxA, Vec[Double]] {
+      def apply(x: Mat[Double]): Vec[Double] = {
+        assert(x.numCols > 0)
+        assert(x.numRows > 0)
+
+        /* diag(A'A) = colSums(A * A elementwise) */
+        val output = Array.ofDim[Double](x.numCols)
+        var i = 0
+        var j = 0
+        while (j < x.numCols) {
+          while (i < x.numRows) {
+            val v = x.raw(i, j)
+            output(j) += v * v
+            i += 1
+          }
+          i = 0
+          j += 1
+        }
+
+        output
+
+      }
+    }
+
+  implicit val colSums =
+    new MatUnaryOp[ColSums, Vec[Double]] {
+      def apply(x: Mat[Double]): Vec[Double] = {
+        assert(x.numCols > 0)
+        assert(x.numRows > 0)
+
+        val output = Array.ofDim[Double](x.numCols)
+        var i = 0
+        var j = 0
+        while (j < x.numCols) {
+          while (i < x.numRows) {
+            val v = x.raw(i, j)
+            output(j) += v
+            i += 1
+          }
+          i = 0
+          j += 1
+        }
+
+        output
+
+      }
+    }
+
+  implicit val cholesky =
+    new MatUnaryOp[Cholesky, Option[Mat[Double]]] {
+      def apply(x: Mat[Double]): Option[Mat[Double]] = {
+        assert(x.numCols > 0)
+        assert(x.numRows > 0)
+
+        val xarray = x.toArray.clone
+        val info = new org.netlib.util.intW(0)
+
+        /* Cholesky X = L' x L; lower triangular L is stored in X */
+        LAPACK.dpotrf("U", x.numCols, xarray, x.numCols, info)
+
+        if (info.`val` == 0) {
+
+          Some(new mat.MatDouble(x.numRows, x.numCols, xarray))
+
+        } else {
+          if (info.`val` > 0) None
+          else throw new DPotrfException(info.`val`)
+        }
+
+      }
+    }
+
+  implicit val forwardSolveForTransposed =
+    new MatBinOp[SolveLowerTriangular, Option[Mat[Double]]] {
+      def apply(a: Mat[Double], b: Mat[Double]): Option[Mat[Double]] = {
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numCols > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols == b.numCols)
+
+        val barray = b.toArray.clone
+        val aarray = a.toArray
+        val info = new org.netlib.util.intW(0)
+
+        /*
+         * solve triangular system for X: A x X = B
+         * B is transposed implicitly because Mat[_] is row major and lapack is col major
+         * A is transposed by lapack
+         */
+        LAPACK.dtrtrs("U",
+                      "T",
+                      "N",
+                      a.numCols,
+                      b.numRows,
+                      aarray,
+                      b.numCols,
+                      barray,
+                      b.numCols,
+                      info)
+
+        if (info.`val` == 0) {
+
+          Some(new mat.MatDouble(b.numRows, b.numCols, barray))
+
+        } else {
+          if (info.`val` > 0) None
+          else throw new DPotrfException(info.`val`)
+        }
+
+      }
+    }
+
+  implicit val diagXAInverseXt =
+    new MatBinOp[DiagXAInverseXt, Option[Vec[Double]]] {
+      def apply(x: Mat[Double], a: Mat[Double]): Option[Vec[Double]] = {
+        assert(x.numCols > 0)
+        assert(x.numRows > 0)
+        assert(a.numCols > 0)
+        assert(a.numRows > 0)
+        assert(x.numCols == a.numRows)
+        assert(a.numRows == a.numCols)
+
+        val xarray = x.toArray.clone
+        val aarray = a.toArray.clone
+        val info = new org.netlib.util.intW(0)
+        val info2 = new org.netlib.util.intW(0)
+
+        /* Cholesky A = U' x U; upper triangular U is stored in A */
+        LAPACK.dpotrf("U", a.numCols, aarray, a.numCols, info)
+
+        /*
+         * solve triangular system for Z: U' x Z = X'
+         * X is transposed implicitly because Mat[_] is row major and lapack is col major
+         * U is transposed by lapack
+         */
+        LAPACK.dtrtrs("U",
+                      "T",
+                      "N",
+                      a.numCols,
+                      x.numRows,
+                      aarray,
+                      a.numCols,
+                      xarray,
+                      x.numCols,
+                      info2)
+
+        if (info.`val` == 0 && info2.`val` == 0) {
+
+          /* diag(Z'Z) = colSums(Z * Z elementwise) */
+          val output = Array.ofDim[Double](x.numRows)
+          var i = 0
+          var j = 0
+          while (i < x.numRows) {
+            while (j < x.numCols) {
+              output(i) += xarray(i * x.numCols + j) * xarray(i * x.numCols + j)
+              j += 1
+            }
+            j = 0
+            i += 1
+          }
+
+          Some(output)
+
+        } else if (info.`val` != 0) {
+          if (info.`val` > 0) None
+          else throw new DPotrfException(info.`val`)
+        } else {
+          throw new RuntimeException(
+            "ERROR in dtrtrs info=" + info2.`val` + """
+                      | INFO is INTEGER
+          |= 0:  successful exit
+          |< 0:  if INFO = -i, the i-th argument had an illegal value
+          |> 0:  if INFO = i, the i-th diagonal element of A is zero,
+                indicating that the matrix is singular and the
+                solutions X have not been computed.""".stripMargin + ", matrix: " + x.toString)
         }
 
       }

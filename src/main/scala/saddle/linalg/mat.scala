@@ -108,23 +108,34 @@ trait MatLinalgOps {
       implicit op: MatGemmOp[aAtxBpbC, B]): B =
     op(self, other, c, alpha, beta)
 
-  /* alhpa A x t(B) + beta * C */
+  /* alpha A x t(B) + beta * C */
   def mmtc(other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
       implicit op: MatGemmOp[aAxBtpbC, B]): B =
     op(self, other, c, alpha, beta)
 
-  /* alhpa t(A) x t(B) + beta * C */
+  /* alpha t(A) x t(B) + beta * C */
   def tmmtc(other: B, c: B, alpha: Double = 1.0, beta: Double = 1.0)(
       implicit op: MatGemmOp[aAtxBtpbC, B]): B =
     op(self, other, c, alpha, beta)
 
+  /* t(A) x A */
   def innerM(implicit op: MatUnaryOp[AtxA, Mat[Double]]): B = op(self)
 
   def innerMpC(alpha: Double, beta: Double, c: Mat[Double])(
       implicit op: MatGemmSelfOp[aAtxApbC, Mat[Double]]): B =
     op(self, c, alpha, beta)
 
+  /* A x t(A) */
   def outerM(implicit op: MatUnaryOp[AxAt, Mat[Double]]): B = op(self)
+
+  /* diag( t(A) x A ) */
+  def diagInnerM(implicit op: MatUnaryOp[DiagAtxA, Vec[Double]]): B = op(self)
+
+  /* diag( A x t(A) ) */
+  def diagOuterM(implicit op: MatUnaryOp[DiagAxAt, Vec[Double]]): B = op(self)
+
+  def colSums(implicit op: MatUnaryOp[ColSums, Vec[Double]]): B = op(self)
+  def rowSums(implicit op: MatUnaryOp[RowSums, Vec[Double]]): B = op(self)
 
   def outerMpC(alpha: Double, beta: Double, c: Mat[Double])(
       implicit op: MatGemmSelfOp[aAxAtpbC, Mat[Double]]): B =
@@ -169,6 +180,12 @@ trait MatLinalgOps {
   def solve(other: B)(implicit op: MatBinOp[GeneralSolve, B]): B =
     op(self, other)
 
+  /* diag(other x inv(self) x t(other)) */
+  def diagInverseSandwich(other: Mat[Double])(
+      implicit op: MatBinOp[DiagXAInverseXt, Option[Vec[Double]]])
+    : Option[Vec[Double]] =
+    op(other, self)
+
   def singularValues(max: Int)(
       implicit op: MatUnaryOp1Scalar[SingularValues, Int, Vec[Double]])
     : Vec[Double] = op(self, max)
@@ -176,5 +193,20 @@ trait MatLinalgOps {
   def eigenValuesSymm(max: Int)(
       implicit op: MatUnaryOp1Scalar[EigValSymTrunc, Int, Vec[Double]])
     : Vec[Double] = op(self, max)
+
+  /* Lower triangular Cholesky factor. X = L x L'
+   * Leaves upper triangle untouched: does NOT zero out upper triangle!
+   */
+  def choleskyLower(implicit op: MatUnaryOp[Cholesky, Option[Mat[Double]]])
+    : Option[Mat[Double]] = op(self)
+
+  /* Solves A x t(X) = t(B) for X
+   * A is lower triangular
+   * Note that the right hand side and X are transposed
+   */
+  def solveLowerTriangularForTransposed(rightHandSide: Mat[Double])(
+      implicit op: MatBinOp[SolveLowerTriangular, Option[Mat[Double]]])
+    : Option[Mat[Double]] =
+    op(self, rightHandSide)
 
 }

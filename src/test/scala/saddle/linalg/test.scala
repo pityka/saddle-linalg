@@ -367,3 +367,80 @@ class MxDSuite extends FunSuite {
   }
 
 }
+
+class DiagAxAt extends FunSuite {
+  test("2x3") {
+    val x = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d))
+    val diag = x.diagOuterM
+    assert(diag.roundTo(3).col(0) == (x mm x.T).diag)
+  }
+  test("3x2") {
+    val x = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d)).T
+    val diag = x.diagOuterM
+    assert(diag.roundTo(3).col(0) == (x mm x.T).diag)
+  }
+
+}
+
+class DiagAtxA extends FunSuite {
+  test("2x3") {
+    val x = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d))
+    val diag = x.diagInnerM
+    assert(diag.roundTo(3).col(0) == (x.T mm x).diag)
+  }
+  test("3x2") {
+    val x = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d)).T
+    val diag = x.diagInnerM
+    assert(diag.roundTo(3).col(0) == (x.T mm x).diag)
+  }
+
+}
+
+class RowColSums extends FunSuite {
+  test("2x3") {
+    val x = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d))
+    assert(x.colSums.roundTo(3).col(0) == Vec(3d, 7d, 11d))
+    assert(x.rowSums.roundTo(3).col(0) == Vec(9d, 12d))
+  }
+  test("3x2") {
+    val x = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d)).T
+
+    assert(x.rowSums.roundTo(3).col(0) == Vec(3d, 7d, 11d))
+    assert(x.colSums.roundTo(3).col(0) == Vec(9d, 12d))
+  }
+
+}
+
+class CholeskySuite extends FunSuite {
+  test("2x2") {
+    val a = Mat(Vec(1d, 2d), Vec(3d, 4d))
+      .mmt(Mat(Vec(1d, 2d), Vec(3d, 4d)))
+    assert(
+      a.choleskyLower.get.roundTo(2) == Mat(Vec(3.16, 4.43), Vec(14d, 0.63)))
+
+  }
+
+}
+
+class DiagXAInverseXtSuite extends FunSuite {
+  test("2x3") {
+    val x = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d)).T
+    val a = Mat(Vec(1d, 2d), Vec(3d, 4d))
+      .mmt(Mat(Vec(1d, 2d), Vec(3d, 4d)))
+
+    val diag = a.diagInverseSandwich(x)
+    assert(diag.get.roundTo(3).col(0) == Vec(1d, 1d, 5d))
+
+    val cholesky = a.choleskyLower.get
+
+    assert(
+      cholesky.solveLowerTriangularForTransposed(x).get.T.roundTo(2) ==
+        Mat(Vec(0.32, 0.95), Vec(0.95, -0.32), Vec(1.58, -1.58)))
+
+    val z = cholesky.solveLowerTriangularForTransposed(x).get
+    val diag2 = z.diagOuterM
+    assert(diag.get.roundTo(3).col(0) == diag2.roundTo(3).col(0))
+
+  }
+
+}
