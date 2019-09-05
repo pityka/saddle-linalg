@@ -200,6 +200,16 @@ trait MatLinalgOps {
   def choleskyLower(implicit op: MatUnaryOp[Cholesky, Option[Mat[Double]]])
     : Option[Mat[Double]] = op(self)
 
+  /* Computes the log10(determinant) of a positive definite matrix
+   * Computes the Cholesky factors and sums their log
+   */
+  def determinantPD(implicit op: MatUnaryOp[Cholesky, Option[Mat[Double]]])
+    : Option[Double] = {
+    op(self).map { mat =>
+      mat.diag.map(math.log10).sum * 2
+    }
+  }
+
   /* Solves A x t(X) = t(B) for X
    * A is lower triangular
    * Note that the right hand side and X are transposed

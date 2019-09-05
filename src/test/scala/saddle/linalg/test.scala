@@ -422,6 +422,17 @@ class CholeskySuite extends FunSuite {
 
 }
 
+class DeterminantPDSuite extends FunSuite {
+  test("2x2") {
+    val a = Mat(Vec(1d, 2d), Vec(3d, 4d))
+      .mmt(Mat(Vec(1d, 2d), Vec(3d, 4d)))
+    assert(math.abs(
+      a.determinantPD.get - a.eigenValuesSymm(100).map(math.log10).sum) < 1E-10)
+
+  }
+
+}
+
 class DiagXAInverseXtSuite extends FunSuite {
   test("2x3") {
     val x = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d)).T
