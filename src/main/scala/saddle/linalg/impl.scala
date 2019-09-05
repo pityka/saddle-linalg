@@ -53,7 +53,7 @@ trait OpImpl {
                    0.0,
                    result,
                    1)
-        result
+        new vec.VecDouble(result)
       }
     }
 
@@ -76,7 +76,7 @@ trait OpImpl {
                    0.0,
                    result,
                    1)
-        result
+        new vec.VecDouble(result)
       }
     }
 
@@ -192,7 +192,7 @@ trait OpImpl {
 
         if (!success) throw new RuntimeException("Eigen decomposition failed")
 
-        val wr2: Vec[Double] = (wr: Vec[Double]).reversed
+        val wr2: Vec[Double] = new vec.VecDouble(wr).reversed
         wr2
       }
     }
@@ -263,7 +263,7 @@ trait OpImpl {
 
         if (!success) throw new RuntimeException("Eigen decomposition failed")
 
-        val wr2: Vec[Double] = (wr: Vec[Double]).reversed
+        val wr2: Vec[Double] = new vec.VecDouble(wr).reversed
         val vl2 = new mat.MatDouble(K, m.numRows, vl)
           .takeRows((0 until K).reverse.toArray)
 
@@ -296,7 +296,7 @@ trait OpImpl {
 
         if (!success) throw new RuntimeException("Eigen decomposition failed")
 
-        val wr2: Vec[Double] = (wr: Vec[Double]).reversed
+        val wr2: Vec[Double] = new vec.VecDouble(wr).reversed
         val vl2 = new mat.MatDouble(m.numRows, m.numRows, a)
           .takeRows((0 until m.numRows).reverse.toArray)
 
@@ -356,8 +356,8 @@ trait OpImpl {
         if (!success) throw new RuntimeException("Eigen decomposition failed")
 
         val reindex = array.argsort(wr).reverse
-        val wr2: Vec[Double] = (wr: Vec[Double])(reindex)
-        val wi2: Vec[Double] = (wi: Vec[Double])(reindex)
+        val wr2: Vec[Double] = (new vec.VecDouble(wr))(reindex)
+        val wi2: Vec[Double] = (new vec.VecDouble(wi))(reindex)
         val vl2 = new mat.MatDouble(m.numRows, m.numRows, vl).takeRows(reindex)
 
         EigenDecompositionNonSymmetric(vl2.T, wr2, wi2)
@@ -503,7 +503,7 @@ trait OpImpl {
       if (info.`val` == 0) {
         val ut: Mat[Double] = new mat.MatDouble(m.numRows, m.numRows, vt)
         val v: Mat[Double] = new mat.MatDouble(m.numCols, m.numCols, u)
-        val sigma: Vec[Double] = Vec(s: _*)
+        val sigma: Vec[Double] = new vec.VecDouble(s)
 
         SVDResult(
           u = ut,
@@ -612,7 +612,7 @@ trait OpImpl {
         var j = 0
         while (i < x.numRows) {
           while (j < x.numCols) {
-            val v = x.raw(i, j)
+            val v = x.apply(i, j)
             output(i) += v
             j += 1
           }
@@ -620,7 +620,7 @@ trait OpImpl {
           i += 1
         }
 
-        output
+        new vec.VecDouble(output)
 
       }
     }
@@ -637,7 +637,7 @@ trait OpImpl {
         var j = 0
         while (i < x.numRows) {
           while (j < x.numCols) {
-            val v = x.raw(i, j)
+            val v = x.apply(i, j)
             output(i) += v * v
             j += 1
           }
@@ -645,7 +645,7 @@ trait OpImpl {
           i += 1
         }
 
-        output
+        new vec.VecDouble(output)
 
       }
     }
@@ -662,7 +662,7 @@ trait OpImpl {
         var j = 0
         while (j < x.numCols) {
           while (i < x.numRows) {
-            val v = x.raw(i, j)
+            val v = x.apply(i, j)
             output(j) += v * v
             i += 1
           }
@@ -670,7 +670,7 @@ trait OpImpl {
           j += 1
         }
 
-        output
+        new vec.VecDouble(output)
 
       }
     }
@@ -686,7 +686,7 @@ trait OpImpl {
         var j = 0
         while (j < x.numCols) {
           while (i < x.numRows) {
-            val v = x.raw(i, j)
+            val v = x.apply(i, j)
             output(j) += v
             i += 1
           }
@@ -694,7 +694,7 @@ trait OpImpl {
           j += 1
         }
 
-        output
+        new vec.VecDouble(output)
 
       }
     }
@@ -813,7 +813,7 @@ trait OpImpl {
             i += 1
           }
 
-          Some(output)
+          Some(new vec.VecDouble(output))
 
         } else if (info.`val` != 0) {
           if (info.`val` > 0) None
@@ -1241,7 +1241,7 @@ trait OpImpl {
           b(i) = d(i * a.numRows + i)
           i += 1
         }
-        b
+        new vec.VecDouble(b)
       }
     }
 
@@ -1325,7 +1325,7 @@ trait OpImpl {
         var j = 0
         while (i < I) {
           while (j < J) {
-            result(i * J + j) = a.toArray(i * J + j) * b.raw(i)
+            result(i * J + j) = a.toArray(i * J + j) * b.apply(i)
             j += 1
           }
           j = 0
@@ -1350,7 +1350,7 @@ trait OpImpl {
         var j = 0
         while (i < I) {
           while (j < J) {
-            result(i * J + j) = a.toArray(i * a.numCols + j) * b.raw(j)
+            result(i * J + j) = a.toArray(i * a.numCols + j) * b.apply(j)
             j += 1
           }
           j = 0
