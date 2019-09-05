@@ -19,6 +19,8 @@ scalafmtOnCompile in ThisBuild := true
 
 publishTo := sonatypePublishTo.value
 
+parallelExecution in Test := false
+
 pomExtra in Global := {
   <url>https://pityka.github.io/saddle-linalg</url>
   <licenses>
