@@ -455,3 +455,19 @@ class DiagXAInverseXtSuite extends FunSuite {
   }
 
 }
+class SolveSuite extends FunSuite {
+  test("2x2") {
+    val b = Mat(Vec(1d, 2d), Vec(3d, 4d), Vec(5d, 6d))
+    val a = Mat(Vec(1d, 2d), Vec(3d, 4d))
+      .mmt(Mat(Vec(1d, 2d), Vec(3d, 4d)))
+    val b1 = Mat(Vec(0.9999999999999964, 2d),
+                 Vec(3.000000000000001, 4d),
+                 Vec(5.000000000000007, 6d))
+
+    val x = a.solve(b).get
+    assert((a mm x) == b1)
+    assert((a mm (a \ b).get) == b1)
+
+  }
+
+}

@@ -177,9 +177,6 @@ trait MatLinalgOps {
     : EigenDecompositionSymmetric =
     op(self, i)
 
-  def solve(other: B)(implicit op: MatBinOp[GeneralSolve, B]): B =
-    op(self, other)
-
   /* diag(other x inv(self) x t(other)) */
   def diagInverseSandwich(other: Mat[Double])(
       implicit op: MatBinOp[DiagXAInverseXt, Option[Vec[Double]]])
@@ -216,6 +213,20 @@ trait MatLinalgOps {
    */
   def solveLowerTriangularForTransposed(rightHandSide: Mat[Double])(
       implicit op: MatBinOp[SolveLowerTriangular, Option[Mat[Double]]])
+    : Option[Mat[Double]] =
+    op(self, rightHandSide)
+
+  /* Solves A x X = B for X
+   * A is general
+   * This transposes all three matrices to conform to Lapack's packing order.
+   */
+  def solve(rightHandSide: Mat[Double])(
+      implicit op: MatBinOp[GeneralSolve, Option[Mat[Double]]])
+    : Option[Mat[Double]] =
+    op(self, rightHandSide)
+
+  def \(rightHandSide: Mat[Double])(
+      implicit op: MatBinOp[GeneralSolve, Option[Mat[Double]]])
     : Option[Mat[Double]] =
     op(self, rightHandSide)
 

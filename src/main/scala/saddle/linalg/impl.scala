@@ -764,6 +764,42 @@ trait OpImpl {
       }
     }
 
+  implicit val solve =
+    new MatBinOp[GeneralSolve, Option[Mat[Double]]] {
+      def apply(a: Mat[Double], b: Mat[Double]): Option[Mat[Double]] = {
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numCols > 0)
+        assert(a.numRows > 0)
+        assert(a.numRows == a.numCols)
+        assert(a.numCols == b.numRows)
+
+        val barray = b.T.toArray.clone
+        val aarray = a.T.toArray.clone
+        val ipiv = Array.ofDim[Int](a.numRows)
+        val info = new org.netlib.util.intW(0)
+
+        LAPACK.dgesv(a.numCols,
+                     b.numCols,
+                     aarray,
+                     a.numRows,
+                     ipiv,
+                     barray,
+                     b.numRows,
+                     info)
+
+        if (info.`val` == 0) {
+
+          Some(new mat.MatDouble(b.numCols, b.numRows, barray).T)
+
+        } else {
+          if (info.`val` > 0) None
+          else throw new DPotrfException(info.`val`)
+        }
+
+      }
+    }
+
   implicit val diagXAInverseXt =
     new MatBinOp[DiagXAInverseXt, Option[Vec[Double]]] {
       def apply(x: Mat[Double], a: Mat[Double]): Option[Vec[Double]] = {
