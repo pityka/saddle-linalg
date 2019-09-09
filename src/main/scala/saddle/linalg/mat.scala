@@ -216,6 +216,15 @@ trait MatLinalgOps {
     : Option[Mat[Double]] =
     op(self, rightHandSide)
 
+  /* Solves A x t(X) = t(B) for X
+   * A is upper triangular
+   * Note that the right hand side and X are transposed
+   */
+  def solveUpperTriangularForTransposed(rightHandSide: Mat[Double])(
+      implicit op: MatBinOp[SolveUpperTriangular, Option[Mat[Double]]])
+    : Option[Mat[Double]] =
+    op(self, rightHandSide)
+
   /* Solves A x X = B for X
    * A is general
    * This transposes all three matrices to conform to Lapack's packing order.

@@ -51,6 +51,7 @@ trait DiagAxAt
 
 trait Cholesky
 trait SolveLowerTriangular
+trait SolveUpperTriangular
 
 trait RowSums
 trait ColSums

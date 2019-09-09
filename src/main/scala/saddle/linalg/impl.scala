@@ -764,6 +764,47 @@ trait OpImpl {
       }
     }
 
+  implicit val forwardSolveUpperDiagonalForTransposed =
+    new MatBinOp[SolveUpperTriangular, Option[Mat[Double]]] {
+      def apply(a: Mat[Double], b: Mat[Double]): Option[Mat[Double]] = {
+        assert(b.numCols > 0)
+        assert(b.numRows > 0)
+        assert(a.numCols > 0)
+        assert(a.numRows > 0)
+        assert(a.numCols == b.numCols)
+
+        val barray = b.toArray.clone
+        val aarray = a.toArray
+        val info = new org.netlib.util.intW(0)
+
+        /*
+         * solve triangular system for X: A x X = B
+         * B is transposed implicitly because Mat[_] is row major and lapack is col major
+         * A is transposed by lapack
+         */
+        LAPACK.dtrtrs("L",
+                      "T",
+                      "N",
+                      a.numCols,
+                      b.numRows,
+                      aarray,
+                      b.numCols,
+                      barray,
+                      b.numCols,
+                      info)
+
+        if (info.`val` == 0) {
+
+          Some(new mat.MatDouble(b.numRows, b.numCols, barray))
+
+        } else {
+          if (info.`val` > 0) None
+          else throw new DPotrfException(info.`val`)
+        }
+
+      }
+    }
+
   implicit val solve =
     new MatBinOp[GeneralSolve, Option[Mat[Double]]] {
       def apply(a: Mat[Double], b: Mat[Double]): Option[Mat[Double]] = {
