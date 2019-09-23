@@ -5,11 +5,13 @@ organization := "io.github.pityka"
 version := "0.0.26-SNAPSHOT"
 
 libraryDependencies ++= Seq(
-  "io.github.pityka" %% "saddle-core-fork" % "1.3.4-fork1",
+  "io.github.pityka" %% "saddle-core" % "2.0.0-SNAPSHOT",
   "com.github.fommil.netlib" % "all" % "1.1.2" pomOnly (),
   "net.sourceforge.f2j" % "arpack_combined_all" % "0.1",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 )
+
+resolvers += "bintray/denisrosset" at "https://dl.bintray.com/denisrosset/maven"
 
 scalaVersion := "2.12.9"
 

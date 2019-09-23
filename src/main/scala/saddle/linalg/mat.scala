@@ -67,13 +67,13 @@ trait MatLinalgOps {
   def mvW(other: Vec[Double], target: Array[Double])(
       implicit op: MatUnaryOp1ScalarTarget[AxV, Vec[Double]]): Vec[Double] = {
     op(self, other, target)
-    target
+    Vec(target)
   }
 
   def tmvW(other: Vec[Double], target: Array[Double])(
       implicit op: MatUnaryOp1ScalarTarget[AtxV, Vec[Double]]): Vec[Double] = {
     op(self, other, target)
-    target
+    Vec(target)
   }
 
   /**
@@ -129,13 +129,15 @@ trait MatLinalgOps {
   def outerM(implicit op: MatUnaryOp[AxAt, Mat[Double]]): B = op(self)
 
   /* diag( t(A) x A ) */
-  def diagInnerM(implicit op: MatUnaryOp[DiagAtxA, Vec[Double]]): B = op(self)
+  def diagInnerM(implicit op: MatUnaryOp[DiagAtxA, Vec[Double]]): B =
+    Mat(op(self))
 
   /* diag( A x t(A) ) */
-  def diagOuterM(implicit op: MatUnaryOp[DiagAxAt, Vec[Double]]): B = op(self)
+  def diagOuterM(implicit op: MatUnaryOp[DiagAxAt, Vec[Double]]): B =
+    Mat(op(self))
 
-  def colSums(implicit op: MatUnaryOp[ColSums, Vec[Double]]): B = op(self)
-  def rowSums(implicit op: MatUnaryOp[RowSums, Vec[Double]]): B = op(self)
+  def colSums(implicit op: MatUnaryOp[ColSums, Vec[Double]]): B = Mat(op(self))
+  def rowSums(implicit op: MatUnaryOp[RowSums, Vec[Double]]): B = Mat(op(self))
 
   def outerMpC(alpha: Double, beta: Double, c: Mat[Double])(
       implicit op: MatGemmSelfOp[aAxAtpbC, Mat[Double]]): B =

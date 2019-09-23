@@ -440,7 +440,7 @@ class DiagXAInverseXtSuite extends FunSuite {
       .mmt(Mat(Vec(1d, 2d), Vec(3d, 4d)))
 
     val diag = a.diagInverseSandwich(x)
-    assert(diag.get.roundTo(3).col(0) == Vec(1d, 1d, 5d))
+    assert(diag.get.roundTo(3) == Vec(1d, 1d, 5d))
 
     val cholesky = a.choleskyLower.get
 
@@ -450,7 +450,7 @@ class DiagXAInverseXtSuite extends FunSuite {
 
     val z = cholesky.solveLowerTriangularForTransposed(x).get
     val diag2 = z.diagOuterM
-    assert(diag.get.roundTo(3).col(0) == diag2.roundTo(3).col(0))
+    assert(diag.get.roundTo(3) == diag2.roundTo(3).col(0))
 
   }
 
@@ -462,14 +462,14 @@ class DiagXAInverseXtSuite2 extends FunSuite {
       .mmt(Mat(Vec(1d, 2d), Vec(3d, 4d)))
 
     val diag = a.diagInverseSandwich(x)
-    assert(diag.get.roundTo(3).col(0) == Vec(1d, 1d, 5d))
+    assert(diag.get.roundTo(3) == Vec(1d, 1d, 5d))
 
     val cholesky = a.choleskyLower.get
 
     val choleskyT = {
       val a = cholesky.T.toArray
       a(2) = 0d
-      new mat.MatDouble(2, 2, a)
+      Mat(2, 2, a)
     }
 
     assert(
